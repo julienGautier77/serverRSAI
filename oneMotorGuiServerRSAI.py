@@ -724,10 +724,9 @@ class PositionThread(QtCore.QThread):
             else:
                 
                 Posi = (self.MOT.position())
-                time.sleep(0.1)
-                
+                time.sleep(0.4)
+                etat = self.MOT.etatMotor()
                 try :
-                    etat = self.MOT.etatMotor()
                     # print(etat)
                     time.sleep(0.1)
                     self.POS.emit([Posi,etat])
@@ -748,7 +747,7 @@ if __name__ == '__main__':
     
     appli = QApplication(sys.argv)
            
-    mot5 = ONEMOTORGUI(IpAdress="10.0.6.31", NoMotor=2, showRef=False, unit=1,jogValue=100)
+    mot5 = ONEMOTORGUI(IpAdress="10.0.6.31", NoMotor=3, showRef=False, unit=1,jogValue=100)
     mot5.show()
     mot5.startThread2()
     appli.exec_()

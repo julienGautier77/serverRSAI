@@ -193,9 +193,7 @@ class SERVERRSAI(QWidget):
         time.sleep(0.2)
         self.threadRack.stopThread()
         time.sleep(1.2)
-        try :
-            moteurRSAIFDB.closeConnection()
-        except : pass
+        moteurRSAIFDB.closeConnection()
         self.PilMot.Stop()
         time.sleep(0.2)
         event.accept()
@@ -217,7 +215,6 @@ class SERVER(QtCore.QThread):
         self.listRackIP = listRackIP
         self.dict_moteurs = dict_moteurs
         self.serversocket = _socket.socket(_socket.AF_INET, _socket.SOCK_STREAM)      # create socket server 
-        # self.serversocket.settimeout(5)
         try :
             self.serversocket.bind((self.serverHost,self.serverPort))
             self.isConnected = True
@@ -233,7 +230,6 @@ class SERVER(QtCore.QThread):
     def run(self):#run
         try: 
             while self.isConnected is True :
-
                 print('start lisenning')
                 if self.isConnected is True : 
                     self.serversocket.listen(10)
@@ -243,18 +239,14 @@ class SERVER(QtCore.QThread):
                     client_thread.signalClientThread.connect(self.signalFromClient)
                     client_thread.signalUpdate.connect(self.updateFromRSAI)
                     self.listClient.append(client_thread)
-
         except :
-            #print('error connection')
-           self.stopThread()
+            self.stopThread()
 
     def signalFromClient(self,sig):
         client_id = sig[0]
         client_adresse = sig[1]
         if client_adresse == 0:
-            #print('del',client_id)
             del self.clientList[client_id]
-            
         else:
             self.clientList[client_id] = client_adresse 
         print('new client: ', self.clientList)
@@ -273,7 +265,7 @@ class SERVER(QtCore.QThread):
             client.conf = self.conf 
             client.listRackIP = self.listRackIP
             client.dict_moteurs = self.dict_moteurs
-            
+            print('rr',client.dict_moteurs)
     def stopThread(self):
         self.isConnected = False
         #print('clossing server')
@@ -287,6 +279,8 @@ class SERVER(QtCore.QThread):
         time.sleep(0.1)
         #self.terminate() 
 
+
+
 class CLIENTTHREAD(QtCore.QThread):
     '''client class 
     '''
@@ -297,7 +291,6 @@ class CLIENTTHREAD(QtCore.QThread):
         
         super(CLIENTTHREAD, self).__init__(parent)
         self.client_socket = client_socket
-        self.client_socket.settimeout(3)
         self.client_adresse = client_adresse
         self.parent = parent
         self.conf = conf 
@@ -355,50 +348,43 @@ class CLIENTTHREAD(QtCore.QThread):
                                     para4 = str(para4)
 
                                 vit  = ctypes.c_int(int(200))
-                               # print('command received', cmd)
+                                #print('command received', cmd)
                                 
                                 if cmd == 'rmove':
                                     regCde = ctypes.c_uint(4)
                                     err = self.PilMot.wCdeMot(numEsim , axe, regCde, value, vit)
                                     sendmsg = 'ok'+'\n'
-                                    self.client_socket.sendall(sendmsg.encode())
-                                if cmd == 'clientid':
-                                    sendmsg = self.client_id+'\n'
-                                    self.client_socket.sendall(sendmsg.encode())
+                                    self.client_socket.send(sendmsg.encode())
 
                                 elif cmd == 'updateFromRSAI':
-                                   # print('serveur update fromRSAI')
+                                    print('serveur update fromRSAI')
                                     sendmsg = 'ok'+'\n'
-                                    self.client_socket.sendall(sendmsg.encode())
+                                    self.client_socket.send(sendmsg.encode())
                                     #time.sleep(0.5)
                                     self.signalUpdate.emit('ok')
 
                                 elif cmd == 'listRack':
                                     sendmsg =str(self.listRackIP) + '\n'
-                                    self.client_socket.sendall(sendmsg.encode())    
+                                    self.client_socket.send(sendmsg.encode())    
 
                                 elif cmd == 'move':
                                     regCde = ctypes.c_uint(2)
                                     err = self.PilMot.wCdeMot(numEsim , axe, regCde, value, vit)
                                     sendmsg = 'ok'+'\n'
-                                    self.client_socket.sendall(sendmsg.encode())
+                                    self.client_socket.send(sendmsg.encode())
                                     
                                 elif cmd =='stop' :
-                                    #print('stop')
                                     regCde = ctypes.c_uint(8) # 8 commande pour arreter le moteur
                                     err = self.PilMot.wCdeMot( numEsim , axe, regCde, 0, 0)
-                                    
-                                    #
-                                    sendmsg = 'ok'+'\n'
-                                    self.client_socket.sendall(sendmsg.encode())
                                     # regCde = ctypes.c_uint(9) # 9 commande pour devalider les phases
                                     # err = self.PilMot.wCdeMot( numEsim , axe, regCde, 0, 0)
-                                    #print('stoperr',err)
+                                    sendmsg = 'ok'+'\n'
+                                    self.client_socket.send(sendmsg.encode())
                                     
                                 elif cmd =='position' :
                                     pos = self.PilMot.rPositionMot(numEsim , axe ) # lecture position theorique en nb pas
                                     sendmsg = str(pos)+'\n'
-                                    self.client_socket.sendall(sendmsg.encode())
+                                    self.client_socket.send(sendmsg.encode())
                                 
                                 elif cmd == 'etat' :
                                     a = self.PilMot.rEtatMoteur(numEsim , axe)
@@ -414,7 +400,7 @@ class CLIENTTHREAD(QtCore.QThread):
                                         elif (a & 0x0400 )!= 0 : # 
                                             etat = 'courtcircuit'
                                         elif (a & 0x0001) != 0:
-                                            etat = ('FDD+')
+                                            etat = ('FDC+')
                                         elif (a & 0x0002 )!= 0 :
                                             etat = 'FDC-'
                                         elif (a & 0x0004 )!= 0 :
@@ -434,18 +420,18 @@ class CLIENTTHREAD(QtCore.QThread):
                                         etat = 'errorConnect'
                             
                                     sendmsg = etat
-                                    self.client_socket.sendall(sendmsg.encode())
+                                    self.client_socket.send(sendmsg.encode())
                                     
                                 elif cmd == 'setzero' :
                                     regCde = ctypes.c_int(1024) #  commande pour zero le moteur (2^10)
                                     err = self.PilMot.wCdeMot(numEsim , axe,regCde,ctypes.c_int(0),ctypes.c_int(0))
                                     sendmsg = 'ok'
-                                    self.client_socket.sendall(sendmsg.encode())
+                                    self.client_socket.send(sendmsg.encode())
                                     
                                 elif cmd == 'name':
                                     nameGiven = str(self.conf.value(name+'/'+'nom'))
                                     sendmsg = nameGiven
-                                    self.client_socket.sendall(sendmsg.encode())
+                                    self.client_socket.send(sendmsg.encode())
 
                                 elif cmd == 'setName':
                                     sendmsg = 'ok'
@@ -453,12 +439,12 @@ class CLIENTTHREAD(QtCore.QThread):
                                         moteurRSAIFDB.setNameMoteur(ip,axe,para3)
                                     except:
                                         sendmsg = 'errorFB'
-                                    self.client_socket.sendall(sendmsg.encode())
+                                    self.client_socket.send(sendmsg.encode())
                                 
                                 elif 'ref' in cmd :
                                     ref = str(self.conf.value(name+'/'+str(cmd)))
                                     sendmsg = ref
-                                    self.client_socket.sendall(sendmsg.encode())
+                                    self.client_socket.send(sendmsg.encode())
 
                                 elif cmd == 'setRefPos':
                                     sendmsg = 'ok'
@@ -470,7 +456,7 @@ class CLIENTTHREAD(QtCore.QThread):
                                         sendmsg = 'errorFB'
                     
                                     self.conf.setValue(name+"/ref"+str(nRef-1)+"Pos",valPos)
-                                    self.client_socket.sendall(sendmsg.encode())
+                                    self.client_socket.send(sendmsg.encode())
                                     
                                 elif cmd == 'setRefName':
                                     sendmsg = 'ok'
@@ -481,48 +467,47 @@ class CLIENTTHREAD(QtCore.QThread):
                                     except:
                                         sendmsg = 'error FB'
                                     self.conf.setValue(name+"/ref"+str(nRef-1)+"Name",para3)
-                                    self.client_socket.sendall(sendmsg.encode())
+                                    self.client_socket.send(sendmsg.encode())
 
                                 elif cmd == 'step': 
                                     
                                     st = str(self.conf.value(name+'/'+'stepmotor'))
                                     
                                     sendmsg = st 
-                                    self.client_socket.sendall(sendmsg.encode())
+                                    self.client_socket.send(sendmsg.encode())
                                     
                                 elif cmd == 'buteePos' or 'buteeneg' :
                                     but = str(self.conf.value(name+'/'+cmd))
                                     sendmsg = but 
-                                    self.client_socket.sendall(sendmsg.encode())
+                                    self.client_socket.send(sendmsg.encode())
                                 
                                 
                                 elif cmd == 'nomRack':
                                     
                                     nameRack = str(self.conf.value(name+'/' + cmd))
                                     sendmsg = nameRack
-                                    self.client_socket.sendall(sendmsg.encode())
+                                    self.client_socket.send(sendmsg.encode())
+                                
+
                                 else:
                                     sendmsg = 'error '
-                                    self.client_socket.sendall(sendmsg.encode())
+                                    self.client_socket.send(sendmsg.encode())
                             except:
                                 print('error')
                                 sendmsg = 'error'
                                 traceback.print_exc()
-                                self.client_socket.sendall(sendmsg.encode())
+                                self.client_socket.send(sendmsg.encode())
                                 
                 except ConnectionResetError:
                     print('deconnection du client')
                     self.client_socket.close()
                     self.signalClientThread.emit([self.client_id,0])
-                    break
                                    
         except Exception as e: 
             print('exception server',e)
             self.client_socket.close()
-            self.signalClientThread.emit([self.client_id,0])
-
+    
     def updateConf(self,dat):
-
         print('update conf client')
 
         ''' update conf rt.. depuis rsai fb

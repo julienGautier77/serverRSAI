@@ -14,13 +14,20 @@ from PyQt6 import QtCore
 from PyQt6.QtWidgets import QMessageBox,QApplication
 import  socket
 from  PyQt6.QtCore import QUuid, QMutex
-import sys
+import sys, os 
 import socket as _socket
+import ast
+import pathlib
 
-server_host = '10.0.6.12'
-serverPort = 5100
+p = pathlib.Path(__file__).parent
+sepa = os.sep
+
+fileconf = str(p) + sepa + "confServer.ini"
+confServer = QtCore.QSettings(fileconf,QtCore.QSettings.Format.IniFormat)
+server_host = str( confServer.value('MAIN'+'/server_host') )# 
+serverPort =int(confServer.value('MAIN'+'/serverPort'))
 clientSocket =_socket.socket(_socket.AF_INET,_socket.SOCK_STREAM)
-clientSocket.settimeout(5)
+#clientSocket.settimeout(5)
 
 try :
     clientSocket.connect((server_host,serverPort))
@@ -29,10 +36,26 @@ try :
     clientSocket.sendall(msg.encode())
     id = clientSocket.recv(1024).decode()
     print('connected with id' ,id)
+    
 
 except :
     isconnected = False
     print('client not connected')
+
+def listRack():
+    cmdsend = " %s" %('listRack',)
+    clientSocket.sendall((cmdsend).encode())
+    listRack = clientSocket.recv(1024).decode()
+    listRack = ast.literal_eval(listRack)
+    return listRack
+
+def nameEquipment(IP):
+    cmd = 'nomRack'
+    cmdsend = " %s, %s, %s " %(IP,1,cmd)
+    clientSocket.sendall((cmdsend).encode())
+    nameRack = clientSocket.recv(1024).decode().split()[0]
+    return nameRack
+    
 
 mut = QMutex()
 
@@ -40,6 +63,16 @@ def closeConnection():
     # close connection
     clientSocket.close()
 
+def listMotorName(IP):
+    listMotor = []
+    print(IP)
+    for i in range(0,14):
+            cmd = 'name'
+            cmdsend = " %s, %s, %s " %(IP,i+1,cmd)
+            clientSocket.sendall((cmdsend).encode())
+            name = clientSocket.recv(1024).decode() #.split()[0]
+            listMotor.append(name)
+    return listMotor
 
 class MOTORRSAI():
     """
