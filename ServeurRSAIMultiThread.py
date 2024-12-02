@@ -213,7 +213,7 @@ class SERVER(QtCore.QThread):
         self.serverPort = 5100
         self.PilMot = PilMot
         self.conf = conf
-        self.clientList = dict()
+         
         self.listRackIP = listRackIP
         self.dict_moteurs = dict_moteurs
         self.serversocket = _socket.socket(_socket.AF_INET, _socket.SOCK_STREAM)      # create socket server 
