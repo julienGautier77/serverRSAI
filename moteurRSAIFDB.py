@@ -195,16 +195,21 @@ def listMotorName(IpAdress):
     '''
     IdEquipt = rEquipmentIdNbr(IpAdress)
     con.commit()
-    listSlot = []
+    listSlot = [] # list slot
     SELECT = 'select NumSlot from %s  where  IdEquipment= %s and NumSlot>=0'% ('TbModule',str(IdEquipt))   # list SLot
     cur.execute(SELECT)
     for row in cur :
        listSlot.append(row[0])
     
+    listNumMot= [] #  liste num moteur
+    for i in listSlot:
+        listNumMot.append(i-1)
+        listNumMot.append(2*i)
+    
     listNameMotor = []
-    for noMot in range (1,2*len(listSlot)+1): # dans notre cas 1...14
+    for noMot in listNumMot: #  range (1,2*len(listSlot)+1): # dans notre cas 1...14
         listNameMotor.append(nameMoteur(IpAdress,noMot))
-    print('FB',listNameMotor)
+   # print('FB',listNameMotor)
     return listNameMotor
  
 def nameEquipment(IpAdress):
@@ -601,9 +606,6 @@ class MOTORRSAI():
 
 if __name__ == '__main__':
     ip = '10.0.6.31'
-    axe = 1
-    nRef = 1
-    valPos = 288
-    setPosRef(ip,axe,nRef,valPos)
+    listMotorName(ip)
     closeConnection()
 
