@@ -202,10 +202,11 @@ def listMotorName(IpAdress):
        listSlot.append(row[0])
     
     listNumMot= [] #  liste num moteur
+    #print(listSlot)
     for i in listSlot:
-        listNumMot.append(i-1)
+        listNumMot.append(2*i-1)
         listNumMot.append(2*i)
-    
+   # print(listNumMot)
     listNameMotor = []
     for noMot in listNumMot: #  range (1,2*len(listSlot)+1): # dans notre cas 1...14
         listNameMotor.append(nameMoteur(IpAdress,noMot))
@@ -605,7 +606,7 @@ class MOTORRSAI():
 
 
 if __name__ == '__main__':
-    ip = '10.0.6.31'
+    ip = '10.0.1.30'
     listMotorName(ip)
     closeConnection()
 
