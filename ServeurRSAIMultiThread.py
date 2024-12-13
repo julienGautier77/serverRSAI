@@ -174,7 +174,7 @@ class SERVERRSAI(QWidget):
         IPs_C = ctypes.create_string_buffer(iplist.encode(),sizeBuffer )
         
         # open dll
-        dll_file = str(p.parent) + sepa+'DLL'+sepa+'PilMotTango.dll'
+        dll_file = str(p.parent) + sepa +'PilMotTango.dll'
         self.PilMot = ctypes.windll.LoadLibrary(dll_file)
         nbeqp = len(self.listRackIP)
         argout = self.PilMot.Start(ctypes.c_int(nbeqp), IPs_C) # nb equipement , liste IP
@@ -228,7 +228,7 @@ class SERVER(QtCore.QThread):
         self.listClient = []
         self.clientsConnectedSocket = []
         self.clients_ids = []
-
+        self.clientList = dict()
     
     def run(self):#run
         try: 
@@ -327,7 +327,7 @@ class CLIENTTHREAD(QtCore.QThread):
                             try :
                                 msgsplit = msgReceived.split(',')
                                 msgsplit = [msg.strip() for msg in msgsplit]
-                                
+                                #print(msgsplit)
                                 if len(msgsplit)>1:
                                     ip = msgsplit[0]
                                     axe = int(msgsplit[1])
@@ -372,6 +372,7 @@ class CLIENTTHREAD(QtCore.QThread):
 
                                 elif cmd == 'listRack':
                                     sendmsg =str(self.listRackIP) + '\n'
+                                    print(sendmsg)
                                     self.client_socket.sendall(sendmsg.encode())    
 
                                 elif cmd == 'move':
