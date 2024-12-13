@@ -70,16 +70,16 @@ class SERVERRSAI(QWidget):
              # liste des nom des moteur i+1= numero de l'axe correspondant a IP 
             num = list(range(1,len(self.listMotor)+1))
             dict_name = "self.dictMotor"+"_"+str(ip) 
-            self.listMotor = [element.replace('Â','') for element in self.listMotor]
-            self.listMotor = [element.replace('°','') for element in self.listMotor]
-            #self.listMotor = [element.replace(' ','M') for element in self.listMotor]
+            self.listMotor = [element.replace('Â',' ') for element in self.listMotor]
+            self.listMotor = [element.replace('°',' ') for element in self.listMotor]
+            self.listMotor = [element.replace(' ','M') for element in self.listMotor]
             
             ii = 0 
             for mot in self.listMotor:
                 motConf = moteurRSAIFDB.nameEquipment(ip)+'M'+str(ii+1)
                 self.listMotorServ.append(motConf)
                 
-                if mot == ' ':
+                if mot == ' ' or mot=='':
                     mot = 'M' +str(ii+1)
                     self.listMotor[ii] = mot 
                 ii+= 1
