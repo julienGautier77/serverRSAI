@@ -49,6 +49,7 @@ class MAINMOTOR(QWidget):
         self.aff()
 
     def aff(self):
+        
         cmdsend = " %s" %('listRack',)
         self.clientSocket.sendall((cmdsend).encode())
         self.listRack = self.clientSocket.recv(1024).decode()
