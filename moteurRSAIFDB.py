@@ -200,17 +200,19 @@ def listMotorName(IpAdress):
     cur.execute(SELECT)
     for row in cur :
        listSlot.append(row[0])
+    # print(listSlot)
+    listSlot.sort() #  tri dans l'odre croissant
     
     listNumMot= [] #  liste num moteur
     #print(listSlot)
     for i in listSlot:
         listNumMot.append(2*i-1)
         listNumMot.append(2*i)
-   # print(listNumMot)
+   
     listNameMotor = []
     for noMot in listNumMot: #  range (1,2*len(listSlot)+1): # dans notre cas 1...14
         listNameMotor.append(nameMoteur(IpAdress,noMot))
-   # print('FB',listNameMotor)
+   
     return listNameMotor
  
 def nameEquipment(IpAdress):
@@ -413,7 +415,7 @@ class MOTORRSAI():
         for i in range (1,7):
             if self.step == 0:
                 self.step = 1
-            rr = self.getRefValue(i)/self.step
+            rr = self.getRefValue(i)# /self.step JG 2025_01_20
             self.refValue.append(rr)
             # time.sleep(0.01)
 
@@ -606,7 +608,7 @@ class MOTORRSAI():
 
 
 if __name__ == '__main__':
-    ip = '10.0.1.30'
-    listMotorName(ip)
+    ip = '10.0.1.31'
+    print(listMotorName(ip))
     closeConnection()
 

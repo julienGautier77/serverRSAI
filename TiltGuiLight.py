@@ -59,7 +59,6 @@ class TILTMOTORGUI(QWidget) :
         self.icon = str(p.parent) + sepa + 'icons' + sepa
         self.showUnit = showUnit
         self.inv = [invLAT,invVert]
-       
         self.iconFlecheHaut = self.icon + "flechehaut.png"
         self.iconFlecheHaut = pathlib.Path(self.iconFlecheHaut)
         self.iconFlecheHaut = pathlib.PurePosixPath(self.iconFlecheHaut)
@@ -82,19 +81,15 @@ class TILTMOTORGUI(QWidget) :
             print('bg')
         else:   
             self.setStyleSheet(qdarkstyle.load_stylesheet_pyqt6())
-        self.indexUnit=unit
-        self.jogValue=jogValue
-        self.nomTilt=nomTilt
-        
+        self.indexUnit = unit
+        self.jogValue = jogValue
+        self.nomTilt = nomTilt
         self.setWindowIcon(QIcon(self.icon+'LOA.png'))
-        self.version=__version__
-        
-        
-        
+        self.version =__version__
         self.MOT = [0,0]
         self.MOT[0] = moteurRSAISERVER.MOTORRSAI(IPLat,NoMotorLat)
         self.MOT[1] = moteurRSAISERVER.MOTORRSAI(IPVert,NoMotorVert)
-        self.stepmotor=[0,0]
+        self.stepmotor = [0,0]
         self.butePos = [0,0]
         self.buteNeg = [0,0]
         self.name = [0,0]
@@ -106,24 +101,22 @@ class TILTMOTORGUI(QWidget) :
             self.name[zzi] = str(self.MOT[0].getName())
             # print('inverse',self.inv)
             
-        
-        self.unitChangeLat=self.indexUnit
+        self.unitChangeLat = self.indexUnit
          
-        self.unitChangeVert=self.indexUnit
+        self.unitChangeVert = self.indexUnit
         self.setWindowTitle(nomWin)
         
-        self.threadLat=PositionThread(mot=self.MOT[0]) # thread pour afficher position Lat
+        self.threadLat = PositionThread(mot=self.MOT[0]) # thread pour afficher position Lat
         self.threadLat.POS.connect(self.PositionLat)
         
         time.sleep(0.7)
         
-        self.threadVert=PositionThread(mot=self.MOT[1]) # thread pour afficher position Vert
+        self.threadVert = PositionThread(mot=self.MOT[1]) # thread pour afficher position Vert
         self.threadVert.POS.connect(self.PositionVert)
-        
         
         self.setup()
         
-        if self.indexUnit==0: #  step
+        if self.indexUnit == 0: #  step
             self.unitChangeLat=1
             self.unitName='step'
             
@@ -131,7 +124,7 @@ class TILTMOTORGUI(QWidget) :
             self.unitChangeLat=float((1*self.stepmotor[0])) 
             self.unitName='um'
         if self.indexUnit==2: #  mm 
-            self.unitChangeLat=float((1000*self.stepmotor[0]))
+            self.unitChangeLat=float((self.stepmotor[0])/1000)
             self.unitName='mm'
         if self.indexUnit==3: #  ps  double passage : 1 microns=6fs
             self.unitChangeLat=float(1*self.stepmotor[0]/0.0066666666) 
@@ -140,7 +133,6 @@ class TILTMOTORGUI(QWidget) :
             self.unitChangeLat=1 *self.stepmotor[0]
             self.unitName='°'
         self.unitTrans()
-        
         
     def setup(self):
         
@@ -186,18 +178,18 @@ class TILTMOTORGUI(QWidget) :
         self.droite.setMinimumHeight(15)
         
         
-        self.jogStep=QDoubleSpinBox()
+        self.jogStep = QDoubleSpinBox()
         self.jogStep.setMaximum(1000000)
         self.jogStep.setStyleSheet("font: bold 8pt")
         self.jogStep.setValue(self.jogValue)
         self.jogStep.setMaximumWidth(70)
         self.jogStep.setMaximumHeight(20)
         
-        center=QHBoxLayout()
+        center = QHBoxLayout()
         center.addWidget(self.jogStep)
-        self.hautLayout=QHBoxLayout()
+        self.hautLayout = QHBoxLayout()
         self.hautLayout.addWidget(self.haut)
-        self.basLayout=QHBoxLayout()
+        self.basLayout = QHBoxLayout()
         self.basLayout.addWidget(self.bas)
         grid_layout.setAlignment(QtCore.Qt.AlignmentFlag.AlignHCenter | QtCore.Qt.AlignmentFlag.AlignVCenter)
         grid_layout.addLayout(self.hautLayout, 0, 1)
@@ -207,23 +199,22 @@ class TILTMOTORGUI(QWidget) :
         grid_layout.addLayout(center,1,1)
         
         hbox1.addLayout(grid_layout)
-        
         vbox1.addLayout(hbox1)
         
-        posLAT=QLabel('Lateral:')
+        posLAT = QLabel('Lateral:')
         posLAT.setStyleSheet("font: bold 6pt")
         posLAT.setAlignment(QtCore.Qt.AlignmentFlag.AlignHCenter | QtCore.Qt.AlignmentFlag.AlignVCenter)
         posLAT.setMaximumHeight(12)
-        posVERT=QLabel('Vertical :')
+        posVERT = QLabel('Vertical :')
         posVERT.setStyleSheet("font: bold 6pt")
         posVERT.setAlignment(QtCore.Qt.AlignmentFlag.AlignHCenter | QtCore.Qt.AlignmentFlag.AlignVCenter)
         posVERT.setMaximumHeight(12)
-        hbox2=QHBoxLayout()
+        hbox2 = QHBoxLayout()
         hbox2.addWidget(posLAT)
         hbox2.addWidget(posVERT)
         vbox1.addLayout(hbox2)
         
-        self.position_Lat=QLabel('pos')
+        self.position_Lat = QLabel('pos')
         self.position_Lat.setMaximumHeight(12)
         self.position_Lat.setStyleSheet("font: bold 6pt")
         self.position_Lat.setAlignment(QtCore.Qt.AlignmentFlag.AlignHCenter | QtCore.Qt.AlignmentFlag.AlignVCenter)
@@ -231,15 +222,15 @@ class TILTMOTORGUI(QWidget) :
         self.position_Vert.setMaximumHeight(12)
         self.position_Vert.setStyleSheet("font: bold 6pt")
         self.position_Vert.setAlignment(QtCore.Qt.AlignmentFlag.AlignHCenter | QtCore.Qt.AlignmentFlag.AlignVCenter)
-        hbox3=QHBoxLayout()
+        hbox3 = QHBoxLayout()
         hbox3.addWidget(self.position_Lat)
         
         hbox3.addWidget(self.position_Vert)
         
         vbox1.addLayout(hbox3)
         
-        hbox4=QHBoxLayout()
-        self.zeroButtonLat=QToolButton()
+        hbox4 = QHBoxLayout()
+        self.zeroButtonLat = QToolButton()
         self.zeroButtonLat.setText( 'Zero Lat')
         self.zeroButtonLat.setStyleSheet("font: bold 5pt")
         self.zeroButtonVert=QToolButton()
@@ -253,21 +244,18 @@ class TILTMOTORGUI(QWidget) :
         hbox4.addWidget(self.zeroButtonVert)
         vbox1.addLayout(hbox4)
         
-        self.stopButton=QPushButton('STOP')
+        self.stopButton = QPushButton('STOP')
         self.stopButton.setStyleSheet("background-color: red;font: bold 8pt")
         self.stopButton.setMaximumHeight(14)
         
-        hbox5=QHBoxLayout()
+        hbox5 = QHBoxLayout()
         hbox5.addWidget(self.stopButton)
         vbox1.addLayout(hbox5)
         vbox1.setContentsMargins(1,1,1,1)
         
-        
         self.setLayout(vbox1)       
-        
         self.actionButton()
         
-    
     def startThread2(self):
         self.threadLat.ThreadINIT()
         self.threadLat.start()
@@ -275,13 +263,10 @@ class TILTMOTORGUI(QWidget) :
         self.threadVert.ThreadINIT()
         self.threadVert.start()
         
-      
     def actionButton(self):
         '''
            Definition des boutons 
         '''
-
-        
         self.haut.clicked.connect(self.hMove) # jog haut
         self.haut.setAutoRepeat(False)
         self.bas.clicked.connect(self.bMove) # jog bas
@@ -293,9 +278,7 @@ class TILTMOTORGUI(QWidget) :
                 
         self.zeroButtonLat.clicked.connect(self.ZeroLat)# remet a zero l'affichage
         self.zeroButtonVert.clicked.connect(self.ZeroVert)
-        
         #self.refZeroButton.clicked.connect(self.RefMark) # va en butée et fait un zero
-
         self.stopButton.clicked.connect(self.StopMot)# arret moteur
     
     def closeEvent(self, event):
@@ -312,7 +295,7 @@ class TILTMOTORGUI(QWidget) :
         action bouton left
         '''
         a = float(self.jogStep.value())
-        a = float(a*self.unitChangeLat)
+        a = float(a/self.unitChangeLat)
         b = self.MOT[0].position()
         if b - a < self.buteNeg[0] :
             print( "STOP : Butée Positive")
@@ -330,9 +313,9 @@ class TILTMOTORGUI(QWidget) :
         '''
         action bouton left
         '''
-        a=float(self.jogStep.value())
-        a=float(a*self.unitChangeLat)
-        b=self.MOT[0].position()
+        a = float(self.jogStep.value())
+        a = float(a/self.unitChangeLat)
+        b = self.MOT[0].position()
         if b-a<self.buteNeg[0] :
             print( "STOP : Butée Positive")
             self.MOT[0].stopMotor()
@@ -350,7 +333,7 @@ class TILTMOTORGUI(QWidget) :
         action bouton up
         '''
         a = float(self.jogStep.value())
-        a = float(a*self.unitChangeVert)
+        a = float(a/self.unitChangeVert)
         b = self.MOT[1].position()
         if b-a<self.buteNeg[1] :
             print( "STOP : Butée Positive")
@@ -369,7 +352,7 @@ class TILTMOTORGUI(QWidget) :
         action bouton up
         '''
         a = float(self.jogStep.value())
-        a = float(a*self.unitChangeVert)
+        a = float(a / self.unitChangeVert)
         b = self.MOT[1].position()
         if b-a<self.buteNeg[1] :
             print( "STOP : Butée Positive")
@@ -399,7 +382,7 @@ class TILTMOTORGUI(QWidget) :
         '''
          unit change mot foc
         '''
-        valueJog = self.jogStep.value()*self.unitChangeLat
+        valueJog = self.jogStep.value() / self.unitChangeLat
         if self.indexUnit == 0: # step
             self.unitChangeLat = 1
             self.unitChangeVert = 1
@@ -409,12 +392,12 @@ class TILTMOTORGUI(QWidget) :
             self.unitChangeVert = float((1*self.stepmotor[1]))  
             self.unitNameTrans = 'um'
         if self.indexUnit == 2: 
-            self.unitChangeLat = float((1000*self.stepmotor[0]))
-            self.unitChangeVert = float((1000*self.stepmotor[1]))
+            self.unitChangeLat = float((self.stepmotor[0])/1000)
+            self.unitChangeVert = float((self.stepmotor[1])/1000)
             self.unitNameTrans = 'mm'
         if self.indexUnit == 3: #  ps  en compte le double passage : 1 microns=6fs
-            self.unitChangeLat = float(1*self.stepmotor[0]/0.0066666666)  
-            self.unitChangeVert = float(1*self.stepmotor[1]/0.0066666666)  
+            self.unitChangeLat = float(1*self.stepmotor[0]*0.0066666666)  
+            self.unitChangeVert = float(1*self.stepmotor[1]*0.0066666666)  
             self.unitNameTrans = 'ps'
         if self.unitChangeLat == 0:
             self.unitChangeLat = 1 # if / par 0
@@ -422,7 +405,7 @@ class TILTMOTORGUI(QWidget) :
             self.unitChangeVert = 1 #if / 0
        
         self.jogStep.setSuffix(" %s" % self.unitNameTrans)
-        self.jogStep.setValue(int(valueJog/self.unitChangeLat))
+        self.jogStep.setValue(int(valueJog*self.unitChangeLat))
         
     def StopMot(self):
         '''
@@ -439,7 +422,7 @@ class TILTMOTORGUI(QWidget) :
         self.etat = str(Posi[1])
         a = float(Pos)
         
-        a = a/self.unitChangeLat # valeur tenant compte du changement d'unite
+        a = a * self.unitChangeLat # valeur tenant compte du changement d'unite
         if self.etat == 'FDC-':
             self.position_Lat.setText(self.etat)
             self.position_Lat.setStyleSheet('font: bold 6pt;color:red')
@@ -468,7 +451,7 @@ class TILTMOTORGUI(QWidget) :
         Pos = Posi[0]
         self.etat = str(Posi[1])
         a = float(Pos)
-        a = a/self.unitChangeVert # valeur tenant compte du changement d'unite
+        a = a * self.unitChangeVert # valeur tenant compte du changement d'unite
         if self.etat == 'FDC-':
             self.position_Vert.setText(self.etat)
             self.position_Vert.setStyleSheet('font: bold 6pt;color:red')
@@ -496,7 +479,7 @@ class TILTMOTORGUI(QWidget) :
         '''
         self.threadLat.stopThread()
         self.threadVert.stopThread()
-        self.isWinOpen=False
+        self.isWinOpen = False
         time.sleep(0.1) 
         # self.MOT[0].()
 #        self.stopConnexion
@@ -505,16 +488,13 @@ class TILTMOTORGUI(QWidget) :
         self.fini
 
 
-
-
 class PositionThread(QtCore.QThread):
     '''
     Second thread  to display the position
     '''
     import time 
-    POS=QtCore.pyqtSignal(object) # signal of the second thread to main thread  to display motors position
+    POS = QtCore.pyqtSignal(object) # signal of the second thread to main thread  to display motors position
     
-
     def __init__(self,parent=None,mot='',):
         super(PositionThread,self).__init__(parent)
         self.MOT = mot
@@ -548,10 +528,10 @@ class PositionThread(QtCore.QThread):
     
 
 if __name__ =='__main__':
-    motor0='tiltLat'
-    motor1='tiltVert'
-    appli=QApplication(sys.argv)
-    mot5=TILTMOTORGUI( IPLat="10.0.6.31", NoMotorLat=1,IPVert="10.0.6.31", NoMotorVert=2,nomWin='Tilt Turning Haut',nomTilt='tilt TB',background='')
+    motor0 = 'tiltLat'
+    motor1 = 'tiltVert'
+    appli = QApplication(sys.argv)
+    mot5 = TILTMOTORGUI( IPLat="10.0.6.31", NoMotorLat=1,IPVert="10.0.6.31", NoMotorVert=2,nomWin='Tilt Turning Haut',nomTilt='tilt TB',background='')
     mot5.show()
     mot5.startThread2()
     appli.exec()

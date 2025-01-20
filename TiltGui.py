@@ -14,8 +14,6 @@ Created on Tue Jan 4 10:42:10 2018
 Modified on Tue july 17  10:49:32 2018
 """
 
-
-
 from PyQt6 import QtCore
 from PyQt6.QtWidgets import QApplication
 from PyQt6.QtWidgets import QWidget
@@ -65,15 +63,12 @@ class TILTMOTORGUI(QWidget) :
         self.iconFlecheHaut = self.icon + "flechehaut.png"
         self.iconFlecheHaut = pathlib.Path(self.iconFlecheHaut)
         self.iconFlecheHaut = pathlib.PurePosixPath(self.iconFlecheHaut)
-
         self.iconFlecheBas = self.icon + "flechebas.png"
         self.iconFlecheBas = pathlib.Path(self.iconFlecheBas)
         self.iconFlecheBas = pathlib.PurePosixPath(self.iconFlecheBas)
-
         self.iconFlecheDroite = self.icon + "flechedroite.png"
         self.iconFlecheDroite = pathlib.Path(self.iconFlecheDroite)
         self.iconFlecheDroite = pathlib.PurePosixPath(self.iconFlecheDroite)
-
         self.iconFlecheGauche = self.icon + "flechegauche.png"
         self.iconFlecheGauche = pathlib.Path(self.iconFlecheGauche)
         self.iconFlecheGauche = pathlib.PurePosixPath(self.iconFlecheGauche)
@@ -91,13 +86,13 @@ class TILTMOTORGUI(QWidget) :
         self.MOT = [0,0]
         self.MOT[0] = moteurRSAISERVER.MOTORRSAI(IPLat,NoMotorLat)
         self.MOT[1] = moteurRSAISERVER.MOTORRSAI(IPVert,NoMotorVert)
-        self.stepmotor=[0,0]
+        self.stepmotor = [0,0]
         self.butePos = [0,0]
         self.buteNeg = [0,0]
         self.name = [0,0]
         
         for zzi in range(0,2):
-            self.stepmotor[zzi] = float(1/(self.MOT[zzi].getStepValue())) # list of stepmotor values for unit conversion
+            self.stepmotor[zzi] = float(1*(self.MOT[zzi].getStepValue())) # list of stepmotor values for unit conversion
             self.butePos[zzi] = float(self.MOT[zzi].getButLogPlusValue()) # list 
             self.buteNeg[zzi] = float(self.MOT[zzi].getButLogMoinsValue())
             self.name[zzi] = str(self.MOT[0].getName())
@@ -121,17 +116,16 @@ class TILTMOTORGUI(QWidget) :
             self.unitChangeLat = float((1 * self.stepmotor[0])) 
             self.unitName = 'um'
         if self.indexUnit == 2: #  mm 
-            self.unitChangeLat = float((1000 * self.stepmotor[0]))
+            self.unitChangeLat = float(( self.stepmotor[0])/1000)
             self.unitName = 'mm'
         if self.indexUnit == 3: #  ps  double passage : 1 microns=6fs
-            self.unitChangeLat = float(1 * self.stepmotor[0]/0.0066666666) 
+            self.unitChangeLat = float(1 * self.stepmotor[0]*0.0066666666) 
             self.unitName = 'ps'
         if self.indexUnit == 4: #  en degres
             self.unitChangeLat = 1 * self.stepmotor[0]
-            self.unitName='°'
+            self.unitName = '°'
         self.unitTrans()
         self.jogStep.setValue(self.jogValue)
-
         self.actionButton()
 
     def setup(self):
@@ -199,9 +193,9 @@ class TILTMOTORGUI(QWidget) :
         
         center = QHBoxLayout()
         center.addWidget(self.jogStep)
-        self.hautLayout=QHBoxLayout()
+        self.hautLayout = QHBoxLayout()
         self.hautLayout.addWidget(self.haut)
-        self.basLayout=QHBoxLayout()
+        self.basLayout = QHBoxLayout()
         self.basLayout.addWidget(self.bas)
         grid_layout.setAlignment(QtCore.Qt.AlignmentFlag.AlignHCenter | QtCore.Qt.AlignmentFlag.AlignVCenter)
         grid_layout.addLayout(self.hautLayout, 0, 1)
@@ -216,9 +210,9 @@ class TILTMOTORGUI(QWidget) :
         
         posLAT = QLabel('Lateral:')
         posLAT.setMaximumHeight(20)
-        posVERT=QLabel('Vertical :')
+        posVERT = QLabel('Vertical :')
         posVERT.setMaximumHeight(20)
-        hbox2=QHBoxLayout()
+        hbox2 = QHBoxLayout()
         hbox2.addWidget(posLAT)
         hbox2.addWidget(posVERT)
         vbox1.addLayout(hbox2)
@@ -229,7 +223,6 @@ class TILTMOTORGUI(QWidget) :
         self.position_Vert.setMaximumHeight(20)
         hbox3=QHBoxLayout()
         hbox3.addWidget(self.position_Lat)
-        
         hbox3.addWidget(self.position_Vert)
         vbox1.addLayout(hbox3)
         
@@ -291,7 +284,7 @@ class TILTMOTORGUI(QWidget) :
         action bouton left
         '''
         a = float(self.jogStep.value())
-        a = float(a*self.unitChangeLat)
+        a = float(a/self.unitChangeLat)
         b = self.MOT[0].position()
         if b-a<self.buteNeg[0] :
             print( "STOP : Butée Positive")
@@ -307,7 +300,7 @@ class TILTMOTORGUI(QWidget) :
         action bouton left
         '''
         a = float(self.jogStep.value())
-        a = float(a*self.unitChangeLat)
+        a = float(a/self.unitChangeLat)
         b = self.MOT[0].position()
         if b-a< self.buteNeg[0] :
             print( "STOP : Butée Positive")
@@ -323,7 +316,7 @@ class TILTMOTORGUI(QWidget) :
         action bouton up
         '''
         a = float(self.jogStep.value())
-        a = float(a*self.unitChangeVert)
+        a = float(a/self.unitChangeVert)
         b = self.MOT[1].position()
         if b-a<self.buteNeg[1] :
             print( "STOP : Butée Positive")
@@ -339,7 +332,7 @@ class TILTMOTORGUI(QWidget) :
         action bouton up
         '''
         a = float(self.jogStep.value())
-        a = float(a*self.unitChangeVert)
+        a = float(a/self.unitChangeVert)
         b = self.MOT[1].position()
         if b-a<self.buteNeg[1] :
             print( "STOP : Butée Positive")
@@ -368,7 +361,7 @@ class TILTMOTORGUI(QWidget) :
         if self.showUnit is True:
             self.indexUnit = self.unitTransBouton.currentIndex()
         
-        valueJog=self.jogStep.value()*self.unitChangeLat
+        valueJog = self.jogStep.value()/self.unitChangeLat
         if self.indexUnit == 0: # step
             self.unitChangeLat = 1
             self.unitChangeVert = 1
@@ -378,12 +371,12 @@ class TILTMOTORGUI(QWidget) :
             self.unitChangeVert = float((1*self.stepmotor[1]))  
             self.unitNameTrans='um'
         if self.indexUnit == 2: 
-            self.unitChangeLat = float((1000*self.stepmotor[0]))
-            self.unitChangeVert = float((1000*self.stepmotor[1]))
+            self.unitChangeLat = float((self.stepmotor[0])/1000)
+            self.unitChangeVert = float((self.stepmotor[1])/1000)
             self.unitNameTrans = 'mm'
         if self.indexUnit == 3: #  ps  en compte le double passage : 1 microns=6fs
-            self.unitChangeLat = float(1*self.stepmotor[0]/0.0066666666)  
-            self.unitChangeVert = float(1*self.stepmotor[1]/0.0066666666)  
+            self.unitChangeLat = float(1*self.stepmotor[0]*0.0066666666)  
+            self.unitChangeVert = float(1*self.stepmotor[1]*0.0066666666)  
             self.unitNameTrans = 'ps'
         if self.unitChangeLat == 0:
             self.unitChangeLat = 1 # if / par 0
@@ -392,7 +385,7 @@ class TILTMOTORGUI(QWidget) :
         
        
         self.jogStep.setSuffix(" %s" % self.unitNameTrans)
-        self.jogStep.setValue(valueJog/self.unitChangeLat)
+        self.jogStep.setValue(valueJog*self.unitChangeLat)
         
     def StopMot(self):
         '''
@@ -409,7 +402,7 @@ class TILTMOTORGUI(QWidget) :
         self.etat = str(Posi[1])
         a = float(Pos)
         
-        a = a/self.unitChangeLat # valeur tenant compte du changement d'unite
+        a = a * self.unitChangeLat # valeur tenant compte du changement d'unite
         if self.etat == 'FDC-':
             self.position_Lat.setText(self.etat)
             self.position_Lat.setStyleSheet('font: bold 15pt;color:red')
@@ -438,7 +431,7 @@ class TILTMOTORGUI(QWidget) :
         Pos = Posi[0]
         self.etat = str(Posi[1])
         a = float(Pos)
-        a = a/self.unitChangeVert # valeur tenant compte du changement d'unite
+        a = a * self.unitChangeVert # valeur tenant compte du changement d'unite
         if self.etat == 'FDC-':
             self.position_Vert.setText(self.etat)
             self.position_Vert.setStyleSheet('font: bold 15pt;color:red')

@@ -12,9 +12,6 @@ from PyQt6.QtWidgets import QWidget,QMessageBox
 from PyQt6.QtWidgets import QVBoxLayout,QHBoxLayout,QPushButton,QGridLayout,QDoubleSpinBox,QProgressBar
 from PyQt6.QtWidgets import QComboBox,QLabel
 from PyQt6.QtGui import QIcon
-
-
-
 import tirSalleJaune as tirSJ
 import sys,time#,logging
 import qdarkstyle
@@ -29,44 +26,42 @@ class SCAN(QWidget):
         
         super(SCAN, self).__init__(parent)
         
-        self.isWinOpen=False
-        self.parent=parent
-        
+        self.isWinOpen = False
+        self.parent = parent
         self.setStyleSheet(qdarkstyle.load_stylesheet(qt_api='pyqt6'))
-        self.MOT=MOT 
+        self.MOT = MOT 
         
-        self.indexUnit=1
+        self.indexUnit = 1
         try :
-            self.name=self.MOT.getName()
-            self.stepmotor=1/self.MOT.getStepValue()
+            self.name = self.MOT.getName()
+            self.stepmotor = 1/self.MOT.getStepValue()
             self.setWindowTitle('Scan  : ' + str(self.MOT.getEquipementName()) + ' ('+ str(self.MOT.IpAdress)+ ')  '+ ' [M'+ str(self.MOT.NoMotor) + ']  ' + self.MOT._name)
         except:
             print('dummy motors class in scan class')
-            self.motor='test'
-            self.name="dummy motor"
+            self.motor = 'test'
+            self.name = "dummy motor"
             self.setWindowTitle('Scan  : '+self.name)
             self.stepmotor = 1
         
         self.setup()
         self.actionButton()
         self.unit()
-        self.threadScan=ThreadScan(self)
+        self.threadScan = ThreadScan(self)
         self.threadScan.nbRemain.connect(self.Remain)
         self.setWindowIcon(QIcon('./icons/LOA.png'))
-        
-        self.threadShoot=ThreadShoot(self)
+        self.threadShoot = ThreadShoot(self)
         self.threadShoot.nbRemainShoot.connect(self.RemainShoot)
         
     def setup(self):
         
-        self.vbox=QVBoxLayout()
-        hboxTitre=QHBoxLayout()
-        self.nom=QLabel(self.name)
+        self.vbox = QVBoxLayout()
+        hboxTitre = QHBoxLayout()
+        self.nom = QLabel(self.name)
         self.nom.setStyleSheet("font: bold 30pt")
         hboxTitre.addWidget(self.nom)
         self.vbox.addLayout(hboxTitre)
         
-        self.unitBouton=QComboBox()
+        self.unitBouton = QComboBox()
         self.unitBouton.addItem('Step')
         self.unitBouton.addItem('um')
         self.unitBouton.addItem('mm')
@@ -78,8 +73,8 @@ class SCAN(QWidget):
         
         hboxTitre.addWidget(self.unitBouton)
         
-        lab_nbStepRemain=QLabel('Remaining step')
-        self.val_nbStepRemain=QLabel(self)
+        lab_nbStepRemain = QLabel('Remaining step')
+        self.val_nbStepRemain = QLabel(self)
         
         hboxTitre.addWidget(lab_nbStepRemain)
         hboxTitre.addWidget(self.val_nbStepRemain)
@@ -87,20 +82,19 @@ class SCAN(QWidget):
         hboxTitre.addWidget(self.progressBar)
         hboxTitre.addSpacing(100)
         
-        
         self.lab_nbr_step = QLabel('nb of step')
         self.val_nbr_step = QDoubleSpinBox(self)
         
         self.val_nbr_step.setMaximum(10000)
         self.val_nbr_step.setMinimum(1)
-        self.val_nbr_step.setValue=10
+        self.val_nbr_step.setValue = 10
         
         self.lab_step = QLabel("step value")
         self.val_step = QDoubleSpinBox()
         self.val_step.setMaximum(10000)
         self.val_step.setMinimum(-10000)
         self.lab_ini = QLabel('ini value')
-        self.val_ini =QDoubleSpinBox()
+        self.val_ini = QDoubleSpinBox()
         self.val_ini.setMaximum(10000)
         self.val_ini.setMinimum(-10000)
         
@@ -125,7 +119,7 @@ class SCAN(QWidget):
         self.but_stop.setStyleSheet("border-radius:20px;background-color: red")
         self.but_stop.setEnabled(False)
         
-        self.but_Shoot=QPushButton('Shoot')
+        self.but_Shoot = QPushButton('Shoot')
         
         grid_layout = QGridLayout()
         grid_layout.addWidget(self.lab_nbr_step  , 0, 0)
@@ -143,13 +137,10 @@ class SCAN(QWidget):
         grid_layout.addWidget(self.lab_time,2,2)
         grid_layout.addWidget(self.val_time,2,3)
         grid_layout.addWidget(self.but_Shoot,2,4)
-        
         self.vbox.addLayout(grid_layout)
         self.setLayout(self.vbox)
  
-    
     def actionButton(self):
-    
         '''
            buttons action setup 
         '''
@@ -161,7 +152,6 @@ class SCAN(QWidget):
         self.but_start.clicked.connect(self.startScan)
         self.but_stop.clicked.connect(self.stopScan)
         self.but_Shoot.clicked.connect(self.startShoot)
-        
         
     def startShoot(self):
         self.stepChange()
@@ -182,20 +172,18 @@ class SCAN(QWidget):
         self.but_Shoot.setEnabled(False)
         self.but_stop.setEnabled(True)
         self.but_stop.setStyleSheet("border-radius:20px;background-color: red")
-        a=tirSJ.Tir()
+        a = tirSJ.Tir()
         print(a)
         
-        if a==0 or a=="":
+        if a == 0 or a == "":
             msg = QMessageBox()
             msg.setIcon(QMessageBox.Icon.Critical)
             msg.setText("Not connected !")
             msg.setInformativeText("Please connect !!")
             msg.setWindowTitle("Warning ...")
             msg.setWindowFlags(QtCore.Qt.WindowType.WindowStaysOnTopHint)
-            msg.exec_()
+            msg.exec()
        
-        
-        
     def stopScan(self):
         self.threadScan.stopThread()
         self.threadShoot.stopThread()
@@ -218,7 +206,7 @@ class SCAN(QWidget):
         self.but_stop.setEnabled(False)
         self.but_stop.setStyleSheet("border-radius:20px;background-color: red")
         
-    def Remain(self,nbstepdone,nbMax)   :
+    def Remain(self,nbstepdone,nbMax):
         self.val_nbStepRemain.setText(str((nbstepdone)))
         self.progressBar.setMaximum(int(nbMax))
         self.progressBar.setValue(nbMax-nbstepdone)
@@ -279,20 +267,20 @@ class SCAN(QWidget):
         '''
         ii = self.unitBouton.currentIndex()
         if ii == 0: #  step
-            self.unitChange=1
-            self.unitName='step'
+            self.unitChange = 1
+            self.unitName = 'step'
             
         if ii == 1: # micron
-            self.unitChange=float((1*self.stepmotor)) 
-            self.unitName='um'
+            self.unitChange = float((1*self.stepmotor)) 
+            self.unitName = 'um'
         if ii == 2: #  mm 
-            self.unitChange=float((1000*self.stepmotor))
+            self.unitChange = float((self.stepmotor)/1000)
             self.unitName='mm'
         if ii == 3: #  ps  double passage : 1 microns=6fs
-            self.unitChange = float(1*self.stepmotor/0.0066666666) 
-            self.unitName='ps'
+            self.unitChange = float(1*self.stepmotor*0.0066666666) 
+            self.unitName = 'ps'
         if ii == 4: #  en degres
-            self.unitChange=1 *self.stepmotor
+            self.unitChange = 1 *self.stepmotor
             self.unitName='°'    
             
         if self.unitChange == 0:
@@ -315,11 +303,11 @@ class ThreadShoot(QtCore.QThread):
     def __init__(self, parent=None):
         super(ThreadShoot,self).__init__(parent)
         self.parent = parent
-        self.stop=False
+        self.stop = False
         
     def run(self):
         self.stop = False
-        nb=0
+        nb = 0
         for nu in range (0,int(self.parent.val_nbTir.value())):
             if self.stop is True:
                 break
@@ -330,7 +318,7 @@ class ThreadShoot(QtCore.QThread):
             self.nbRemainShoot.emit(nbstepdone)
             
     def stopThread(self):
-        self.stop=True
+        self.stop = True
         print( "stop thread Shoot" ) 
         
         
@@ -342,12 +330,12 @@ class ThreadScan(QtCore.QThread):
     def __init__(self, parent=None):
         super(ThreadScan,self).__init__(parent)
         self.parent = parent
-        self.stop=False
-        date=time.strftime("%Y_%m_%d_%H_%M_%S")
+        self.stop = False
+        date = time.strftime("%Y_%m_%d_%H_%M_%S")
 
     def run(self):
         
-        self.stop=False
+        self.stop = False
         
         self.vini = self.parent.vInit*self.parent.unitChange
         self.vfin = self.parent.vFin*self.parent.unitChange
@@ -361,13 +349,12 @@ class ThreadScan(QtCore.QThread):
                 break
             else:	
                 time.sleep(1)
-                b=self.parent.MOT.position()
+                b = self.parent.MOT.position()
         time.sleep(0.5)
         movement = np.arange(self.vini+self.step,self.vfin+self.step,self.step)
         nbTotShot = np.size(movement)*self.parent.val_nbTir.value()
         nb = 0
         for mv in movement:
-            
             if self.stop is True:
                 break
             else:
@@ -379,7 +366,7 @@ class ThreadScan(QtCore.QThread):
                     if self.stop is True:
                         break
                     else :
-                        b=self.parent.MOT.position()
+                        b = self.parent.MOT.position()
                         time.sleep(0.1)
                         precis = 1
                         if b == mv :
@@ -391,7 +378,7 @@ class ThreadScan(QtCore.QThread):
                     print('tir')
                     a = tirSJ.Tir()
                     print('shot' )
-                    if a==0 or a=="":
+                    if a == 0 or a == "":
                         print('error shoot')
                     self.nbRemain.emit(int(nbTotShot-nb),int(nbTotShot))
                     print('wait',self.val_time)
@@ -400,12 +387,12 @@ class ThreadScan(QtCore.QThread):
         self.parent.stopScan()
 
     def stopThread(self):
-        self.stop=True
+        self.stop = True
         print( "stop thread" )  
 
        
 if __name__=='__main__':
-    appli=QApplication(sys.argv)
+    appli = QApplication(sys.argv)
     s = SCAN(MOT=None)
     s.show()
-    appli.exec_()
+    appli.exec()

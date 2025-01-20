@@ -26,11 +26,13 @@ import socket as _socket
 import uuid
 import ctypes
 import traceback
+from  PyQt6.QtCore import QMutex
 import __init__
 
 author = __init__.__author__
 version = __init__.__version__
 
+Mut = QMutex()
 
 class SERVERRSAI(QWidget):
     signalServer = QtCore.pyqtSignal(object)
@@ -42,8 +44,7 @@ class SERVERRSAI(QWidget):
         self.hostname =_socket.gethostname()
         self.iphost = _socket.gethostbyname(self.hostname)
         
-        
-        err = self.initFromRSAIDB()    
+        self.initFromRSAIDB()    
         self.setup()
         self.connexionRack()
 
@@ -72,8 +73,8 @@ class SERVERRSAI(QWidget):
             dict_name = "self.dictMotor"+"_"+str(ip) 
             self.listMotor = [element.replace('Â',' ') for element in self.listMotor]
             self.listMotor = [element.replace('°',' ') for element in self.listMotor]
-            self.listMotor = [element.replace(' ','M') for element in self.listMotor]
-            
+            self.listMotor = [element.replace(' ','_') for element in self.listMotor]
+            # print(self.listMotor)
             ii = 0 
             for mot in self.listMotor:
                 motConf = moteurRSAIFDB.nameEquipment(ip)+'M'+str(ii+1)
@@ -99,9 +100,14 @@ class SERVERRSAI(QWidget):
                 name = mot
                 nameGiven = self.listMotor[j]
                 nomRack = moteur.getEquipementName()  
+                #print(name,nameGiven,nomRack )
                 step = moteur.step
                 butmoins = moteur.butMoins
+                if butmoins == '' :
+                    butmoins=0
                 butplus = moteur.butPlus
+                if butplus == '' :
+                    butplus=0
                 refName = moteur.refName
                 refValue = moteur.refValue
                 self.conf.setValue(name+"/nom",nameGiven)
@@ -114,8 +120,10 @@ class SERVERRSAI(QWidget):
                 self.conf.setValue(name+"/buteeneg",butmoins)
                 self.conf.setValue(name+"/moteurType","RSAI")
                 for v in range(0,6):
-                    if refName[v] == ' ':
+                    if refName[v] == ' ' or refName[v] == '':
                         refName[v] = 'REF'+str(v)
+                    if refValue[v]=='' or refValue[v]== ' ':
+                        refValue[v]=0
                     self.conf.setValue(name+"/ref"+str(v)+"Name",refName[v])
                     self.conf.setValue(name+"/ref"+str(v)+"Pos",refValue[v])
                 j+= 1
@@ -167,10 +175,11 @@ class SERVERRSAI(QWidget):
         sepa = os.sep
         iplist = '' 
         for ip in self.listRackIP:
-            iplist = iplist + ip + '       '
+            iplist = iplist + ip + '\0' + '      '
         sizeBuffer = len(self.listRackIP)*16
         
         #iplist = '10.0.6.30       10.0.6.31       '
+        #print('iplist',iplist,sizeBuffer)
         IPs_C = ctypes.create_string_buffer(iplist.encode(),sizeBuffer )
         
         # open dll
@@ -178,6 +187,7 @@ class SERVERRSAI(QWidget):
         self.PilMot = ctypes.windll.LoadLibrary(dll_file)
         nbeqp = len(self.listRackIP)
         argout = self.PilMot.Start(ctypes.c_int(nbeqp), IPs_C) # nb equipement , liste IP
+        time.sleep(2)
         if argout == 1 :
             print('RSAI connection : OK RSAI connected @\n', self.listRackIP)
         else:
@@ -197,6 +207,7 @@ class SERVERRSAI(QWidget):
             moteurRSAIFDB.closeConnection()
         except : pass
         self.PilMot.Stop()
+        print('Rack RSAI connection stopped')
         time.sleep(0.2)
         event.accept()
        
@@ -318,7 +329,7 @@ class CLIENTTHREAD(QtCore.QThread):
                 try:
                     data = self.client_socket.recv(1024)
                     msgReceived = data.decode().strip()
-                    
+                    #print(msgReceived)
                     if not msgReceived:
                         print('connection perdue')
                         self.signalClientThread.emit([self.client_id,0])
@@ -327,12 +338,12 @@ class CLIENTTHREAD(QtCore.QThread):
                             try :
                                 msgsplit = msgReceived.split(',')
                                 msgsplit = [msg.strip() for msg in msgsplit]
-                                #print(msgsplit)
+                                # print(msgsplit)
                                 if len(msgsplit)>1:
                                     ip = msgsplit[0]
-                                    axe = int(msgsplit[1])
+                                    axe =int(msgsplit[1])
                                     cmd = msgsplit[2]
-                                    numEsim = self.listRackIP.index(ip)
+                                    numEsim = int(self.listRackIP.index(ip))
                                     dict_name = "self.dictMotor"+"_"+str(ip)
                                     name = self.dict_moteurs[dict_name][axe]
                                     
@@ -354,7 +365,7 @@ class CLIENTTHREAD(QtCore.QThread):
                                     para4 = (msgsplit[4])
                                     para4 = str(para4)
 
-                                vit  = ctypes.c_int(int(200))
+                                vit  = ctypes.c_int(int(10000))
                                 
                                 
                                 if cmd == 'clientid':
@@ -372,7 +383,7 @@ class CLIENTTHREAD(QtCore.QThread):
 
                                 elif cmd == 'listRack':
                                     sendmsg =str(self.listRackIP) + '\n'
-                                    print(sendmsg)
+                                    #print(sendmsg)
                                     self.client_socket.sendall(sendmsg.encode())    
 
                                 elif cmd == 'move':
@@ -382,9 +393,11 @@ class CLIENTTHREAD(QtCore.QThread):
                                     
                                     self.client_socket.sendall(sendmsg.encode())
                                 elif cmd == 'rmove':
-                                    print('command received', cmd)
-                                    regCde = ctypes.c_uint(4)
-                                    err = self.PilMot.wCdeMot(numEsim , axe, regCde, value, vit)
+                                    regCde = ctypes.c_uint(4) # mvt position relative
+                                    print('command send to rack', numEsim , axe, regCde, value, vit)
+                                    err = self.PilMot.wCdeMot(numEsim ,axe, regCde, value, vit)
+                                    
+                                    #print('error:',err)
                                     sendmsg = 'ok'+'\n'
                                     self.client_socket.sendall(sendmsg.encode())
 
@@ -409,7 +422,7 @@ class CLIENTTHREAD(QtCore.QThread):
                                     a = self.PilMot.rEtatMoteur(numEsim , axe)
                                     # a = hex(a)
                                     etatConnection = self.PilMot.rEtatConnexion( ctypes.c_int16(numEsim) ) 
-                                    # print('connextion to equipement',etatConnection)
+                                    #print('connextion to equipement',etatConnection)
                                     
                                     if etatConnection == 3:
                                         if (a & 0x0800 )!= 0 : # 
@@ -434,7 +447,7 @@ class CLIENTTHREAD(QtCore.QThread):
                                             etat = 'etatCameOrigin'
                                         else:
                                             etat = '?'
-                                        
+                                
                                     else:
                                         etat = 'errorConnect'
                             
@@ -459,7 +472,8 @@ class CLIENTTHREAD(QtCore.QThread):
                                     except:
                                         sendmsg = 'errorFB'
                                     self.client_socket.sendall(sendmsg.encode())
-                                
+                                    print('setName', sendmsg)
+
                                 elif 'ref' in cmd :
                                     ref = str(self.conf.value(name+'/'+str(cmd)))
                                     sendmsg = ref
@@ -571,10 +585,12 @@ class THREADRACKCONNECT(QtCore.QThread):
                 nbEqu=len(self.parent.listRackIP)
                 for numEsim in range(0,nbEqu):
                     rcon = self.PilMot.rEtatConnexion( ctypes.c_int16(numEsim) )
+                    #print(rcon)
                     if rcon == 3:
                         self.parent.box[numEsim].setChecked(True)
                     else: 
                         self.parent.box[numEsim].setChecked(False)
+                    #print(self.PilMot.rEtatConnexion( ctypes.c_int16(0) ))
                     time.sleep(1)
 
 

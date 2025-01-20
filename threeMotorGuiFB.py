@@ -126,10 +126,10 @@ class THREEMOTORGUI(QWidget) :
         self.name = [0,0,0]
         
         for zzi in range(0,3):
-            self.stepmotor[zzi] = float(1/(self.MOT[zzi].getStepValue())) # list of stepmotor values for unit conversion
-            self.butePos[zzi] = float(self.MOT[zzi].getButLogPlusValue()) # list 
+            self.stepmotor[zzi] = float((1/self.MOT[zzi].getStepValue())) # list of stepmotor values for unit conversion
+            self.butePos[zzi] = float(1/self.MOT[zzi].getButLogPlusValue()) # list 
             self.buteNeg[zzi] = float(self.MOT[zzi].getButLogMoinsValue())
-            self.name[zzi] = str(self.MOT[0].getName())
+            self.name[zzi] = str(1/self.MOT[0].getName())
         
         self.setWindowTitle(nomWin+'                     V.'+str(self.version))#+' : '+ self.name[0])
         
@@ -152,10 +152,10 @@ class THREEMOTORGUI(QWidget) :
             self.unitChangeFoc = float((1*self.stepmotor[2])) 
             self.unitNameFoc = 'um'
         if self.indexUnitFoc == 2: #  mm 
-            self.unitChangeFoc = float((1000*self.stepmotor[2]))
+            self.unitChangeFoc = float((self.stepmotor[2])/1000)
             self.unitNameFoc = 'mm'
         if self.indexUnitFoc == 3: #  ps  double passage : 1 microns=6fs
-            self.unitChangeFoc = float(1*self.stepmotor[2]/0.0066666666) 
+            self.unitChangeFoc = float(1*self.stepmotor[2]*0.0066666666) 
             self.unitNameFoc = 'ps'
         if self.indexUnitFoc == 4: #  en degres
             self.unitChangeFoc=1 *self.stepmotor[2]
@@ -170,12 +170,12 @@ class THREEMOTORGUI(QWidget) :
             self.unitChangeVert = float((1*self.stepmotor[1]))  
             self.unitNameTrans = 'um'
         if self.indexUnit == 2: 
-            self.unitChangeLat = float((1000*self.stepmotor[0]))
-            self.unitChangeVert = float((1000*self.stepmotor[1]))
+            self.unitChangeLat = float((self.stepmotor[0])/1000)
+            self.unitChangeVert = float((self.stepmotor[1])/1000)
             self.unitNameTrans = 'mm'
         if self.indexUnit == 3: #  ps  en compte le double passage : 1 microns=6fs
-            self.unitChangeLat = float(1*self.stepmotor[0]/0.0066666666)  
-            self.unitChangeVert = float(1*self.stepmotor[1]/0.0066666666)  
+            self.unitChangeLat = float(1*self.stepmotor[0]*0.0066666666)  
+            self.unitChangeVert = float(1*self.stepmotor[1]*0.0066666666)  
             self.unitNameTrans = 'ps'
         if self.unitChangeLat == 0:
             self.unitChangeLat = 1 # if / par 0
@@ -205,10 +205,19 @@ class THREEMOTORGUI(QWidget) :
         self.setWindowTitle(self.nomWin)
         
         self.refValueLat = self.MOT[0].refValue
+        self.refValueLatStep=[] # en step 
+        for ref in self.refValueLat:
+            self.refValueLatStep.append(ref /self.stepmotor[0])
         self.refNameLat = self.MOT[0].refName
         self.refValueVert = self.MOT[1].refValue
+        self.refValueVertStep=[] # en step 
+        for ref in self.refValueVert:
+            self.refValueVertStep.append(ref /self.stepmotor[1])
         self.refNameVert = self.MOT[1].refName
         self.refValueFoc = self.MOT[2].refValue
+        self.refValueFocStep=[] # en step 
+        for ref in self.refValueFoc:
+            self.refValueFocStep.append(ref /self.stepmotor[2])
         self.refNameFoc = self.MOT[0].refName
 
         # update ref Name (ref name = ref La) and position ref value
@@ -219,14 +228,14 @@ class THREEMOTORGUI(QWidget) :
             iii+=1        
         eee = 0  
         for absButton in self.absLatRef: 
-            absButton.setValue(float(self.refValueLat[eee]/self.unitChangeLat)) # save reference lat  value
+            absButton.setValue(float(self.refValueLatStep[eee]/self.unitChangeLat)) # save reference lat  value
             eee+=1
         eee = 0     
         for absButton in self.absVertRef: 
-            absButton.setValue(float(self.refValueVert[eee]/self.unitChangeVert)) #save reference vert value 
+            absButton.setValue(float(self.refValueVertStep[eee]/self.unitChangeVert)) #save reference vert value 
         eee = 0    
         for absButton in self.absFocRef: 
-            absButton.setValue(float(self.refValueFoc[eee]/self.unitChangeFoc)) # save reference foc value
+            absButton.setValue(float(self.refValueFocStep[eee]/self.unitChangeFoc)) # save reference foc value
             eee+=1
 
     def updateDB(self):
@@ -238,14 +247,15 @@ class THREEMOTORGUI(QWidget) :
                 i+=1
             #♦self.MOT[m].update()
         
-        for ref in self.refValueLat : 
-            self.MOT[0].setRefValue(i,ref/self.stepmotor[0])
-            
-        for ref in self.refValueVert : 
-            self.MOT[1].setRefValue(i,ref/self.stepmotor[1])
+        for ref in self.refValueLatStep : 
 
-        for ref in self.refValueFoc : 
-            self.MOT[2].setRefValue(i,ref/self.stepmotor[2])
+            self.MOT[0].setRefValue(i,ref*self.stepmotor[0])
+            
+        for ref in self.refValueVertStep : 
+            self.MOT[1].setRefValue(i,ref*self.stepmotor[1])
+
+        for ref in self.refValueFocStep : 
+            self.MOT[2].setRefValue(i,ref*self.stepmotor[2])
 
     def startThread2(self):
         self.threadVert.ThreadINIT()
@@ -253,7 +263,7 @@ class THREEMOTORGUI(QWidget) :
         time.sleep(0.12)
         self.threadFoc.ThreadINIT()
         self.threadFoc.start()
-        time.sleep(0.1)
+        time.sleep(0.13)
         self.threadLat.ThreadINIT()
         self.threadLat.start()
         
@@ -542,17 +552,17 @@ class THREEMOTORGUI(QWidget) :
             posButton.clicked.connect(self.ref)    # go to reference value
         eee = 0   
         for absButton in self.absLatRef: 
-            absButton.setValue(float(self.refValueLat[eee]/self.unitChangeLat)) # save reference lat  value
+            absButton.setValue(float(self.refValueLatStep[eee]*self.unitChangeLat)) # save reference lat  value
             absButton.editingFinished.connect(self.savRefLat) # sauv value
             eee+=1
         eee = 0     
         for absButton in self.absVertRef: 
-            absButton.setValue(float(self.refValueVert[eee]/self.unitChangeVert)) #save reference vert value 
+            absButton.setValue(float(self.refValueVertStep[eee]*self.unitChangeVert)) #save reference vert value 
             absButton.editingFinished.connect(self.savRefVert) # save  value
             eee+=1
         eee = 0     
         for absButton in self.absFocRef: 
-            absButton.setValue(float(self.refValueFoc[eee]/self.unitChangeFoc)) # save reference foc value
+            absButton.setValue(float(self.refValueFocStep[eee]*self.unitChangeFoc)) # save reference foc value
             absButton.editingFinished.connect(self.savRefFoc) #
             eee+=1
             
@@ -600,12 +610,9 @@ class THREEMOTORGUI(QWidget) :
         action jog + foc 
         '''
         a = float(self.jogStep_2.value())
-        a = float(a*self.unitChangeFoc)
+        a = float(a/self.unitChangeFoc)
         b = self.MOT[2].position()
-        a = float(self.jogStep_2.value())
-        a = float(a*self.unitChangeFoc)
-        b = self.MOT[2].position()
-        
+    
         if b+a > self.butePos[2] :
             print( "STOP : Positive switch")
             self.MOT[2].stopMotor()
@@ -620,7 +627,7 @@ class THREEMOTORGUI(QWidget) :
         action jog - foc
         '''
         a = float(self.jogStep_2.value())
-        a = float(a*self.unitChangeFoc)
+        a = float(a/self.unitChangeFoc)
         b = self.MOT[2].position()
         if b-a<self.buteNeg[2] :
             print( "STOP : Negative switch")
@@ -636,7 +643,7 @@ class THREEMOTORGUI(QWidget) :
         action button left -
         '''
         a = float(self.jogStep.value())
-        a = float(a*self.unitChangeLat)
+        a = float(a/self.unitChangeLat)
         b = self.MOT[0].position()
        
         if b+a > self.butePos[0] :
@@ -653,7 +660,7 @@ class THREEMOTORGUI(QWidget) :
         action bouton right +
         '''
         a = float(self.jogStep.value())
-        a = float(a*self.unitChangeLat)
+        a = float(a/self.unitChangeLat)
         b = self.MOT[0].position()
         if b-a < self.buteNeg[0] :
             print( "STOP : Negative switch")
@@ -669,7 +676,7 @@ class THREEMOTORGUI(QWidget) :
         action button up +
         '''
         a = float(self.jogStep.value())
-        a = float(a*self.unitChangeVert)
+        a = float(a/self.unitChangeVert)
         b = self.MOT[1].position()
         if b+a> self.butePos[1] :
             print( "STOP : Positive switch")
@@ -686,7 +693,7 @@ class THREEMOTORGUI(QWidget) :
         action button up -
         '''
         a = float(self.jogStep.value())
-        a = float(a*self.unitChangeVert)
+        a = float(a/self.unitChangeVert)
         b = self.MOT[1].position()
         if b-a < self.buteNeg[1] :
             self.MOT[1].stopMotor()
@@ -715,7 +722,8 @@ class THREEMOTORGUI(QWidget) :
         unit change mot foc
         '''
         self.indexUnitFoc = self.unitFocBouton.currentIndex()
-        valueJog_2 = self.jogStep_2.value()*self.unitChangeFoc
+        valueJog_2 = self.jogStep_2.value()/self.unitChangeFoc
+        
         if self.indexUnitFoc == 0: #  step
             self.unitChangeFoc=1
             self.unitNameFoc='step'
@@ -723,20 +731,20 @@ class THREEMOTORGUI(QWidget) :
             self.unitChangeFoc = float((1*self.stepmotor[2]))  
             self.unitNameFoc = 'um'
         if self.indexUnitFoc == 2: #  mm 
-            self.unitChangeFoc = float((1000*self.stepmotor[2]))
+            self.unitChangeFoc = float((self.stepmotor[2])/1000)
             self.unitNameFoc = 'mm'
         if self.indexUnitFoc == 3: #  ps  double passage : 1 microns=6fs
-            self.unitChangeFoc = float(1*self.stepmotor[2]/0.0066666666)    
+            self.unitChangeFoc = float(1*self.stepmotor[2]*0.0066666666)    
             self.unitNameFoc = 'ps'
         if self.unitChangeFoc == 0:
             self.unitChangeFoc = 1 #avoid 0 
         
-        self.jogStep_2.setValue(valueJog_2/self.unitChangeFoc)
+        self.jogStep_2.setValue(valueJog_2*self.unitChangeFoc)
         self.jogStep_2.setSuffix(" %s" % self.unitNameFoc)
         eee = 0   
         for absButton in self.absFocRef: 
             nbRef = eee
-            absButton.setValue(float(self.refValueFoc[nbRef])/self.unitChangeFoc) # save reference foc value
+            absButton.setValue(float(self.refValueFocStep[nbRef])*self.unitChangeFoc) # save reference foc value
             absButton.setSuffix(" %s" % self.unitNameFoc)
             eee+=1
         
@@ -744,7 +752,7 @@ class THREEMOTORGUI(QWidget) :
         '''
          unit change mot foc
         '''
-        valueJog = self.jogStep.value()*self.unitChangeLat
+        valueJog = self.jogStep.value()/self.unitChangeLat
         self.indexUnit = self.unitTransBouton.currentIndex()
         if self.indexUnit == 0: # step
             self.unitChangeLat = 1
@@ -755,31 +763,31 @@ class THREEMOTORGUI(QWidget) :
             self.unitChangeVert = float((1*self.stepmotor[1]))  
             self.unitNameTrans = 'um'
         if self.indexUnit == 2: 
-            self.unitChangeLat = float((1000*self.stepmotor[0]))
-            self.unitChangeVert = float((1000*self.stepmotor[1]))
+            self.unitChangeLat = float((self.stepmotor[0])/1000)
+            self.unitChangeVert = float((self.stepmotor[1])/1000)
             self.unitNameTrans = 'mm'
         if self.indexUnit == 3: #  ps  en compte le double passage : 1 microns=6fs
-            self.unitChangeLat = float(1*self.stepmotor[0]/0.0066666666)  
-            self.unitChangeVert = float(1*self.stepmotor[1]/0.0066666666)  
+            self.unitChangeLat = float(1*self.stepmotor[0]*0.0066666666)  
+            self.unitChangeVert = float(1*self.stepmotor[1]*0.0066666666)  
             self.unitNameTrans = 'ps'
         if self.unitChangeLat == 0:
             self.unitChangeLat = 1 # if / par 0
         if self.unitChangeVert == 0:
             self.unitChangeVert = 1 #if / 0
         
-        self.jogStep.setValue(valueJog/self.unitChangeLat)
+        self.jogStep.setValue(valueJog*self.unitChangeLat)
         self.jogStep.setSuffix(" %s" % self.unitNameTrans)
         
         eee = 0  
         for absButton in self.absLatRef: 
             nbRef = eee
-            absButton.setValue(float(self.refValueLat[nbRef])/self.unitChangeLat) # save reference lat  value
+            absButton.setValue(float(self.refValueLatStep[nbRef])*self.unitChangeLat) # save reference lat  value
             absButton.setSuffix(" %s" % self.unitNameTrans)
             eee+= 1
         eee = 0    
         for absButton in self.absVertRef: 
             nbRef = eee
-            absButton.setValue(float(self.refValueVert[nbRef])/self.unitChangeVert) #save reference vert value 
+            absButton.setValue(float(self.refValueVert[nbRef])*self.unitChangeVert) #save reference vert value 
             absButton.setSuffix(" %s" % self.unitNameTrans)
             eee+= 1
         
@@ -808,18 +816,18 @@ class THREEMOTORGUI(QWidget) :
         self.etatLat = str(Posi[1])
         a = float(Pos)
         b = a # value in step
-        a = a/self.unitChangeLat # value with unit changed
-        if self.etatLat=='FDC-':
+        a = a*self.unitChangeLat # value with unit changed
+        if self.etatLat == 'FDC-':
             self.enPosition_Lat.setText('FDC -')
             self.enPosition_Lat.setStyleSheet('font: bold 12pt;color:red')
             
-        elif self.etatLat=='FDC+':
+        elif self.etatLat == 'FDC+':
             self.enPosition_Lat.setText('FDC +')
             self.enPosition_Lat.setStyleSheet('font: bold 12pt;color:red')
-        elif self.etatLat=='Poweroff' :
+        elif self.etatLat == 'Poweroff' :
             self.enPosition_Lat.setText('Power Off')
             self.enPosition_Lat.setStyleSheet('font: bold 12pt;color:red')
-        elif self.etatLat=='mvt' :
+        elif self.etatLat == 'mvt' :
              self.enPosition_Lat.setText('Mvt')
              self.enPosition_Lat.setStyleSheet('font: bold 12pt;color:white')
         elif self.etat == 'notconnected':
@@ -831,15 +839,15 @@ class THREEMOTORGUI(QWidget) :
         self.position_Lat.setText(str(round(a,2))) 
         self.position_Lat.setStyleSheet('font: bold 25pt;color:white')
             
-        positionConnue_Lat=0 # 
-        precis=5
+        positionConnue_Lat = 0 # 
+        precis = 5
         if (self.etatLat == 'ok' or self.etatLat == '?'):
             for nbRefInt in range(1,7):
                 if positionConnue_Lat == 0 :
                     
-                    if float(self.refValueLat[nbRefInt-1])-precis<b< float(self.refValueLat[nbRefInt-1])+precis:
+                    if float(self.refValueLatStep[nbRefInt-1])-precis<b< float(self.refValueLatStep[nbRefInt-1])+precis:
                         self.enPosition_Lat.setText(str(self.refNameLat[nbRefInt-1]))
-                        positionConnue_Lat=1
+                        positionConnue_Lat =1 
 
         if positionConnue_Lat == 0 and (self.etatLat == 'ok' or self.etatLat == '?'):
             self.enPosition_Lat.setText('' ) 
@@ -849,21 +857,21 @@ class THREEMOTORGUI(QWidget) :
         Position Vert  displayed with the second thread
         '''
         Pos=Posi[0]
-        self.etatVert=str(Posi[1])
-        a=float(Pos)
-        b=a # value in step 
-        a=a/self.unitChangeVert # value  with unit changed
-        if self.etatVert=='FDC-':
+        self.etatVert = str(Posi[1])
+        a = float(Pos)
+        b = a # value in step 
+        a = a * self.unitChangeVert # value  with unit changed
+        if self.etatVert == 'FDC-':
             self.enposition_Vert.setText('FDC -')
             self.enposition_Vert.setStyleSheet('font: bold 12pt;color:red')
             
-        elif self.etatVert=='FDC+':
+        elif self.etatVert == 'FDC+':
             self.enPosition_Vert.setText('FDC +')
             self.position_Vert.setStyleSheet('font: bold 12pt;color:red')
-        elif self.etatVert=='Poweroff' :
+        elif self.etatVert == 'Poweroff' :
             self.enPosition_Vert.setText('Power Off')
             self.enPosition_Vert.setStyleSheet('font: bold 12pt;color:red')
-        elif self.etatVert=='mvt' :
+        elif self.etatVert == 'mvt' :
              self.enPosition_Vert.setText('Mvt')
              self.enPosition_Vert.setStyleSheet('font: bold 12pt;color:white')
         elif self.etat == 'notconnected':
@@ -875,12 +883,12 @@ class THREEMOTORGUI(QWidget) :
         self.position_Vert.setText(str(round(a,2))) 
         self.position_Vert.setStyleSheet('font: bold 25pt;color:white')
             
-        positionConnue_Vert=0 # 
-        precis=5
+        positionConnue_Vert = 0 # 
+        precis = 5
         if (self.etatVert == 'ok' or self.etatVert == '?'):
             for nbRefInt in range(1,7):
                 if positionConnue_Vert == 0 :
-                    if float(self.refValueVert[nbRefInt-1])-precis<b< float(self.refValueVert[nbRefInt-1])+precis:
+                    if float(self.refValueVertStep[nbRefInt-1])-precis<b< float(self.refValueVertStep[nbRefInt-1])+precis:
                         self.enPosition_Vert.setText(str(self.refNameVert[nbRefInt-1]))
                         positionConnue_Vert = 1     
         if positionConnue_Vert == 0 and (self.etatVert == 'ok' or self.etatVert == '?'):
@@ -890,11 +898,11 @@ class THREEMOTORGUI(QWidget) :
         ''' 
         Position Foc  displayed with the second thread
         '''
-        Pos=Posi[0]
-        self.etatFoc=str(Posi[1])
-        a=float(Pos)
-        b=a # value in step 
-        a=a/self.unitChangeFoc # 
+        Pos = Posi[0]
+        self.etatFoc = str(Posi[1])
+        a = float(Pos)
+        b = a # value in step 
+        a  a * self.unitChangeFoc # 
         
         if self.etatFoc == 'FDC-':
             self.enposition_Foc.setText('FDC -')
@@ -922,7 +930,7 @@ class THREEMOTORGUI(QWidget) :
         if (self.etatFoc == 'ok' or self.etatFoc == '?'):
             for nbRefInt in range(1,7):
                 if positionConnue_Foc == 0 :
-                    if float(self.refValueFoc[nbRefInt-1]) - precis < b < float(self.refValueFoc[nbRefInt-1]) + precis: #self.MOT[0].getRefValue
+                    if float(self.refValueFocStep[nbRefInt-1]) - precis < b < float(self.refValueFocStep[nbRefInt-1]) + precis: #self.MOT[0].getRefValue
                         self.enPosition_Foc.setText(str(self.refNameFoc[nbRefInt-1]))
                         positionConnue_Foc = 1   
         if positionConnue_Foc == 0 and (self.etatFoc == 'ok' or self.etatFoc == '?'):
@@ -939,17 +947,17 @@ class THREEMOTORGUI(QWidget) :
                tposLat = self.MOT[0].position()
                nbRef = str(sender.objectName()[0])
               # print('ref',nbRef)
-               self.refValueLat[int(nbRef)-1] = tposLat
-               self.absLatRef[int(nbRef)-1].setValue(tposLat/self.unitChangeLat)
+               self.refValueLatStep[int(nbRef)-1] = tposLat
+               self.absLatRef[int(nbRef)-1].setValue(tposLat*self.unitChangeLat)
                print ("Position Lat saved" , self.refValueLat )
                tposVert = self.MOT[1].position()
-               self.refValueVert[int(nbRef)-1] = tposVert
-               self.absVertRef[int(nbRef)-1].setValue(tposVert/self.unitChangeVert)
+               self.refValueVertStep[int(nbRef)-1] = tposVert
+               self.absVertRef[int(nbRef)-1].setValue(tposVert*self.unitChangeVert)
                print ("Position Vert saved")
                tposFoc = self.MOT[2].position()
                print('tposFoc',tposFoc)
-               self.refValueFoc[int(nbRef)-1] = tposFoc
-               self.absFocRef[int(nbRef)-1].setValue(tposFoc/self.unitChangeFoc)
+               self.refValueFocStep[int(nbRef)-1] = tposFoc
+               self.absFocRef[int(nbRef)-1].setValue(tposFoc*self.unitChangeFoc)
                print ("Position Foc saved")
 #
     def ref(self):  
@@ -962,9 +970,9 @@ class THREEMOTORGUI(QWidget) :
         if reply == QMessageBox.StandardButton.Yes:
             nbRef = int(sender.objectName()[0])
             vref=[]
-            vref.append(int(self.refValueLat[nbRef-1]))
-            vref.append(int(self.refValueVert[nbRef-1]))
-            vref.append(int(self.refValueFoc[nbRef-1]))
+            vref.append(int(self.refValueLatStep[nbRef-1]))
+            vref.append(int(self.refValueVertStep[nbRef-1]))
+            vref.append(int(self.refValueFocStep[nbRef-1]))
             print('vref mov',vref)
             for i in range (0,3):
                 # print(i)
@@ -1005,8 +1013,8 @@ class THREEMOTORGUI(QWidget) :
         sender = QtCore.QObject.sender(self)
         nbRefLat = sender.objectName()[0] # nom du button ABSref1
         #print('nbref=',nbRefLat)
-        vrefLat = int(self.absLatRef[int(nbRefLat)-1].value()*self.unitChangeLat)
-        self.refValueLat[int(nbRefLat)-1] = vrefLat # on sauvegarde en step dans la base donnee 
+        vrefLat = int(self.absLatRef[int(nbRefLat)-1].value())
+        self.refValueLatStep[int(nbRefLat)-1] = vrefLat # on sauvegarde en step dans la base donnee 
         print(self.refValueLat)
         
     def savRefVert (self) : 
@@ -1015,8 +1023,8 @@ class THREEMOTORGUI(QWidget) :
         '''
         sender = QtCore.QObject.sender(self)
         nbRefVert = sender.objectName()[0] 
-        vrefVert = int(self.absVertRef[int(nbRefVert)-1].value()*self.unitChangeVert)
-        self.refValueVert[int(nbRefVert)-1 ] = vrefVert # on sauvegarde en step dans la base donnee 
+        vrefVert = int(self.absVertRef[int(nbRefVert)-1].value())
+        self.refValueVertStep[int(nbRefVert)-1 ] = vrefVert # on sauvegarde en step dans la base donnee 
        
     def savRefFoc (self) :
         '''
@@ -1024,8 +1032,8 @@ class THREEMOTORGUI(QWidget) :
         '''
         sender = QtCore.QObject.sender(self)
         nbRefFoc = sender.objectName()[0] 
-        vrefFoc = int(self.absFocRef[int(nbRefFoc)-1].value()*self.unitChangeFoc)
-        self.refValueFoc[int(nbRefFoc)-1] = vrefFoc # on sauvegarde en step dans la base donnee 
+        vrefFoc = int(self.absFocRef[int(nbRefFoc)-1].value())
+        self.refValueFocStep[int(nbRefFoc)-1] = vrefFoc # on sauvegarde en step dans la base donnee 
         
 
     def ShootAct(self):
@@ -1046,7 +1054,7 @@ class THREEMOTORGUI(QWidget) :
         self.threadLat.stopThread()
         self.threadVert.stopThread()
         self.threadFoc.stopThread()
-        self.isWinOpen=False
+        self.isWinOpen = False
         time.sleep(0.1) 
          
         self.updateDB()   
@@ -1178,7 +1186,7 @@ class PositionThread(QtCore.QThread):
 if __name__ =='__main__':
    
     appli = QApplication(sys.argv)
-    mot5 = THREEMOTORGUI(IPLat="10.0.6.31", NoMotorLat=1,IPVert="10.0.6.31", NoMotorVert=2,IPFoc="10.0.6.31", NoMotorFoc=3,nomWin='Camera Tache Focale',nomTilt='',nomFoc='Cam Foc')
-    mot5.show()
-    mot5.startThread2()
+    mot = THREEMOTORGUI(IPLat="10.0.6.31", NoMotorLat=1,IPVert="10.0.6.31", NoMotorVert=2,IPFoc="10.0.6.31", NoMotorFoc=3,nomWin='Camera Tache Focale',nomTilt='',nomFoc='Cam Foc')
+    mot.show()
+    mot.startThread2()
     appli.exec_()
