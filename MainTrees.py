@@ -1,4 +1,4 @@
-#! /home/upx/loaenv/bin/python3.12
+#! /home/sallejaune/loaenv/bin/python3.12
 # -*- coding: utf-8 -*-
 #last modified 18 oct 2024
 
