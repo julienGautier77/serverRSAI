@@ -234,7 +234,7 @@ class MAINMOTOR(QWidget):
     
 if __name__ == '__main__':
     appli = QApplication(sys.argv)
-    appli.setStyle('fusion')
-    s = MAINMOTOR(chamber ='lolita')
+    
+    s = MAINMOTOR(chamber ='rosa')
     s.show()
     appli.exec_()
