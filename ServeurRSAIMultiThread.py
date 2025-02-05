@@ -270,6 +270,8 @@ class SERVER(QtCore.QThread):
             self.clientList[client_id] = client_adresse 
         print('new client: ', self.clientList)
         txt= "\n".join([f"{key}: {value}" for key,value in self.clientList.items()])
+        
+        print('text',txt)
         self.parent.clientLabel.setText(txt)
 
     def updateFromRSAI(self,a):
@@ -366,8 +368,7 @@ class CLIENTTHREAD(QtCore.QThread):
                                     para4 = str(para4)
 
                                 vit  = ctypes.c_int(int(10000))
-                                
-                                
+        
                                 if cmd == 'clientid':
                                     sendmsg = self.client_id+'\n'
                                     self.client_socket.sendall(sendmsg.encode())
