@@ -118,7 +118,7 @@ class THREEMOTORGUI(QWidget) :
         self.MOT = [0,0,0]
         self.MOT[0] = moteurRSAISERVER.MOTORRSAI(IPLat,NoMotorLat)
         self.MOT[1] = moteurRSAISERVER.MOTORRSAI(IPVert,NoMotorVert)
-        self.MOT[2] = moteurRSAISERVER.MOTORRSAI(IPVert,NoMotorFoc)
+        self.MOT[2] = moteurRSAISERVER.MOTORRSAI(IPFoc,NoMotorFoc)
 
         self.stepmotor = [0,0,0]
         self.butePos = [0,0,0]
@@ -129,7 +129,7 @@ class THREEMOTORGUI(QWidget) :
             self.stepmotor[zzi] = float((1/self.MOT[zzi].getStepValue())) # list of stepmotor values for unit conversion
             self.butePos[zzi] = float(1/self.MOT[zzi].getButLogPlusValue()) # list 
             self.buteNeg[zzi] = float(self.MOT[zzi].getButLogMoinsValue())
-            self.name[zzi] = str(1/self.MOT[0].getName())
+            self.name[zzi] = str(self.MOT[0].getName())
         
         self.setWindowTitle(nomWin+'                     V.'+str(self.version))#+' : '+ self.name[0])
         
@@ -902,7 +902,7 @@ class THREEMOTORGUI(QWidget) :
         self.etatFoc = str(Posi[1])
         a = float(Pos)
         b = a # value in step 
-        a  a * self.unitChangeFoc # 
+        a = a * self.unitChangeFoc # 
         
         if self.etatFoc == 'FDC-':
             self.enposition_Foc.setText('FDC -')
@@ -1163,12 +1163,12 @@ class PositionThread(QtCore.QThread):
                 break
             else:
                 Posi = (self.MOT.position())
-                time.sleep(0.1)
+                time.sleep(0.05)
                 #try :
                 etat = self.MOT.etatMotor()
-                time.sleep(0.1)
+                #time.sleep(0.1)
                 self.POS.emit([Posi,etat])
-                time.sleep(0.1)
+                #time.sleep(0.1)
                 #except: 
                     #print('error emit etat')  
                     
@@ -1186,7 +1186,7 @@ class PositionThread(QtCore.QThread):
 if __name__ =='__main__':
    
     appli = QApplication(sys.argv)
-    mot = THREEMOTORGUI(IPLat="10.0.6.31", NoMotorLat=1,IPVert="10.0.6.31", NoMotorVert=2,IPFoc="10.0.6.31", NoMotorFoc=3,nomWin='Camera Tache Focale',nomTilt='',nomFoc='Cam Foc')
+    mot = THREEMOTORGUI(IPLat="10.0.1.31", NoMotorLat=8,IPVert="10.0.3.31", NoMotorVert=6,IPFoc="10.0.1.31", NoMotorFoc=10,nomWin='Camera Tache Focale',nomTilt='Focal Spot',nomFoc='Cam Foc')
     mot.show()
     mot.startThread2()
     appli.exec_()
