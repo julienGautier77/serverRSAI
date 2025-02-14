@@ -163,7 +163,7 @@ class ONEMOTORGUI(QWidget) :
             ref = ref * float((self.stepmotor[0])) # en micron
             a = self.MOT[0].setRefValue(i,int(ref))
             i+=1
-        i=0
+        i = 0
         for ref in self.refName : 
             self.MOT[0].setRefName(i,ref)
             i+=1

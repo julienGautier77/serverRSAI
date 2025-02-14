@@ -97,22 +97,17 @@ class WidgetCible(QWidget):
         self.unitChangeLat = float((1/self.MotLat.getStepValue()))
         self.unitChangeVert = float((1/self.MotVert.getStepValue()))
         
-        
         self.posX = 0
         self.posY = 0
         self.Xshoot = []
         self.Yshoot = []
 
         self.jogValueLat = self.conf.value('MAIN'+'/stepLat')
-        print(self.jogValueLat)
         self.jogValueVert = self.conf.value('MAIN'+'/stepVert')
-
-
 
         self.setup()
 
     def setup(self):
-
 
         self.setWindowTitle('Cible ROSA')
         size = 20
@@ -125,8 +120,7 @@ class WidgetCible(QWidget):
         self.winPLOT = self.winImage.addPlot()
         self.winPLOT.setLabel('left', 'Position Vertical (um)')
         self.winPLOT.setLabel('bottom', 'Position Lateral (um)')
-        #self.winPLOT.setXRange(0, 40000)
-        #self.winPLOT.setYRange(0, 100000)
+
         self.posiAct = self.winPLOT.plot(clear=True, symbol='o', symbolPen=None, symbolBrush='g',pen =None)
         
         self.positionShot = self.winPLOT.plot(clear=False, symbol='+', symbolPen=None, symbolBrush='r',pen = None )
@@ -140,7 +134,6 @@ class WidgetCible(QWidget):
         self.position_Lat.setStyleSheet("font: bold 25pt" )
         self.position_Lat.setMaximumHeight(30)
         
-
         self.moinsLat = QToolButton()
         self.moinsLat.setText('-')
         self.moinsLat.setMinimumWidth(size)
@@ -167,7 +160,6 @@ class WidgetCible(QWidget):
         self.jogStepLat.setMaximumHeight(size)
         self.jogStepLat.setValue(float(self.conf.value('MAIN'+'/stepLat') ))
         
-
         self.plusLat = QToolButton()
         self.plusLat.setText('+')
         self.plusLat.setMinimumWidth(size)
@@ -209,8 +201,6 @@ class WidgetCible(QWidget):
         self.moinsVertShoot.setStyleSheet("background-color: red")
         self.moinsVertShoot.clicked.connect(self.mMoveVertShoot)
 
-        
-
         self.jogStepVert = QDoubleSpinBox()
         self.jogStepVert.setMaximum(10000)
         self.jogStepVert.setMinimumWidth(size*4)
@@ -219,7 +209,6 @@ class WidgetCible(QWidget):
         self.jogStepVert.setMaximumHeight(size)
         self.jogStepVert.setValue(float(self.conf.value('MAIN'+'/stepVert')))
         
-
         self.plusVert = QToolButton()
         self.plusVert.setText('+')
         self.plusVert.setMinimumWidth(size)
@@ -239,7 +228,6 @@ class WidgetCible(QWidget):
 
         self.resetBut = QToolButton()
         self.resetBut.setText('Reset')
-        #self.resetBut.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         self.resetBut.clicked.connect(self.reset)
 
         self.valMaxLabel = QLabel('Vert Max :')
@@ -332,12 +320,9 @@ class WidgetCible(QWidget):
         
         self.Xshoot.append(self.posX)
         self.Yshoot.append(self.posY)
-
         self.positionShot.setData(x=self.Xshoot,y=self.Yshoot) 
-        
         b = float(self.jogStepVert.value())
         a = float(b/self.unitChangeVert)
-        print('mvt pos' ,self.posY ,b) 
         if  self.posY + b >= self.valMax.value():
             msg = QMessageBox()
             msg.setIcon(QMessageBox.Icon.Critical)
@@ -359,9 +344,7 @@ class WidgetCible(QWidget):
         
         self.Xshoot.append(self.posX)
         self.Yshoot.append(self.posY)
-
         self.positionShot.setData(x=self.Xshoot,y=self.Yshoot) 
-        
         b = float(self.jogStepVert.value())
         a = float(b/self.unitChangeVert)
         if   self.posY -b< self.valMin.value():
@@ -481,7 +464,6 @@ class WidgetCible(QWidget):
         time.sleep(0.1)
         event.accept() 
 
-
 class PositionThread(QtCore.QThread):
     '''
     Second thread  to display the position
@@ -520,7 +502,6 @@ class PositionThread(QtCore.QThread):
         #self.terminate()
 
 if __name__ =='__main__':
-   
     appli = QApplication(sys.argv)
     mot = WidgetCible()
     mot.show()
