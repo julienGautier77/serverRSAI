@@ -88,11 +88,13 @@ class ONEMOTORGUI(QWidget) :
         self.butePos = [0,0,0]
         self.buteNeg = [0,0,0]
         self.name = [0,0,0]
+
         for zzi in range(0,1):
             self.stepmotor[zzi] = float((1/self.MOT[0].getStepValue())) # list of stepmotor values for unit conversion
             self.butePos[zzi] = float(self.MOT[0].getButLogPlusValue()) # list 
             self.buteNeg[zzi] = float(self.MOT[0].getButLogMoinsValue())
             self.name[zzi] = str(self.MOT[0].getName())
+            
                 ## initialisation of the jog value 
         if self.indexUnit == 0: #  step
             self.unitChange = 1

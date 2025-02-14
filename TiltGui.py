@@ -92,7 +92,7 @@ class TILTMOTORGUI(QWidget) :
         self.name = [0,0]
         
         for zzi in range(0,2):
-            self.stepmotor[zzi] = float(1*(self.MOT[zzi].getStepValue())) # list of stepmotor values for unit conversion
+            self.stepmotor[zzi] = float(1/(self.MOT[zzi].getStepValue())) # list of stepmotor values for unit conversion
             self.butePos[zzi] = float(self.MOT[zzi].getButLogPlusValue()) # list 
             self.buteNeg[zzi] = float(self.MOT[zzi].getButLogMoinsValue())
             self.name[zzi] = str(self.MOT[0].getName())
