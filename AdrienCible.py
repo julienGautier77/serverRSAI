@@ -50,14 +50,14 @@ class WINDOWRANGE(QWidget):
         
         self.labelYmin = QLabel('Ymin:')
         self.yMinBox = QDoubleSpinBox(self)
-        self.yMinBox.setMinimum(-100000)
-        self.yMinBox.setMaximum(100000)
+        self.yMinBox.setMinimum(-10000000)
+        self.yMinBox.setMaximum(10000000)
         hRangeGrid.addWidget(self.labelYmin, 2, 0)
         hRangeGrid.addWidget(self.yMinBox, 2, 1)
         self.labelYmax = QLabel('Ymax:')
         self.yMaxBox = QDoubleSpinBox(self)
-        self.yMaxBox.setMaximum(100000)
-        self.yMaxBox.setMinimum(-100000)
+        self.yMaxBox.setMaximum(10000000)
+        self.yMaxBox.setMinimum(-10000000)
         hRangeGrid.addWidget(self.labelYmax, 3, 0)
         hRangeGrid.addWidget(self.yMaxBox, 3, 1)
         self.applyButton = QPushButton('Apply')
@@ -77,7 +77,7 @@ class WidgetCible(QWidget):
     """  widget tree with IP adress and motor
  
     """
-    def __init__(self,IPVert,MotVert,IPLat,MotLat,titre='',parent=None):
+    def __init__(self,IPVert,MotVert,IPLat,MotLat,titre='',name='MAIN',parent=None):
 
         super(WidgetCible, self).__init__(parent)
         self.isWinOpen = False
@@ -94,6 +94,7 @@ class WidgetCible(QWidget):
         self.setStyleSheet(qdarkstyle.load_stylesheet(qt_api='pyqt6'))
         self.setWindowIcon(QIcon(self.icon + 'LOA.png'))
         fileconf = "confCible.ini"
+        self.name = name
         self.conf = QtCore.QSettings(fileconf,QtCore.QSettings.Format.IniFormat)
         self.VertWidget = ONEMOTORGUI(IpAdress = self.IPVert, NoMotor = self.MotVert)
         self.LatWidget = ONEMOTORGUI(IpAdress = self.IPLat, NoMotor = self.MotLat)
@@ -107,8 +108,8 @@ class WidgetCible(QWidget):
         self.Xshoot = []
         self.Yshoot = []
 
-        self.jogValueLat = self.conf.value('MAIN'+'/stepLat')
-        self.jogValueVert = self.conf.value('MAIN'+'/stepVert')
+        self.jogValueLat = self.conf.value(self.name+'/stepLat')
+        self.jogValueVert = self.conf.value(self.name+'/stepVert')
 
         self.setup()
 
@@ -136,7 +137,7 @@ class WidgetCible(QWidget):
         self.posLat.setStyleSheet("font: 12pt")
         self.posLat.setMaximumHeight(30)
         self.position_Lat = QLabel('12345667')
-        self.position_Lat.setStyleSheet("font: bold 25pt" )
+        self.position_Lat.setStyleSheet('font: bold 18pt;color:white')
         self.position_Lat.setMaximumHeight(30)
         
         self.moinsLat = QToolButton()
@@ -163,7 +164,7 @@ class WidgetCible(QWidget):
         self.jogStepLat.setMaximumWidth(size*4)
         self.jogStepLat.setMinimumHeight(size)
         self.jogStepLat.setMaximumHeight(size)
-        self.jogStepLat.setValue(float(self.conf.value('MAIN'+'/stepLat') ))
+        self.jogStepLat.setValue(float(self.conf.value(self.name+'/stepLat') ))
         
         self.plusLat = QToolButton()
         self.plusLat.setText('+')
@@ -186,7 +187,7 @@ class WidgetCible(QWidget):
         self.posVert.setStyleSheet("font: 12pt")
         self.posVert.setMaximumHeight(30)
         self.position_Vert = QLabel('1234556')
-        self.position_Vert.setStyleSheet("font: bold 25pt" )
+        self.position_Vert.setStyleSheet('font: bold 18pt;color:white')
         self.position_Vert.setMaximumHeight(30)
         
         self.moinsVert = QToolButton()
@@ -212,7 +213,7 @@ class WidgetCible(QWidget):
         self.jogStepVert.setMaximumWidth(size*4)
         self.jogStepVert.setMinimumHeight(size)
         self.jogStepVert.setMaximumHeight(size)
-        self.jogStepVert.setValue(float(self.conf.value('MAIN'+'/stepVert')))
+        self.jogStepVert.setValue(float(self.conf.value(self.name+'/stepVert')))
         
         self.plusVert = QToolButton()
         self.plusVert.setText('+')
@@ -239,12 +240,12 @@ class WidgetCible(QWidget):
         self.valMax = QDoubleSpinBox()
         self.valMax.setMinimum(-10000000)
         self.valMax.setMaximum(10000000)
-        self.valMax.setValue(float(self.conf.value('MAIN'+'/vertMax')))
+        self.valMax.setValue(float(self.conf.value(self.name+'/vertMax')))
         self.valMinLabel = QLabel('Vert Min :')
         self.valMin = QDoubleSpinBox()
         self.valMin.setMinimum(-10000000)
         self.valMin.setMaximum(10000000)
-        self.valMin.setValue(float(self.conf.value('MAIN'+'/vertMin')))
+        self.valMin.setValue(float(self.conf.value(self.name+'/vertMin')))
         grid_layout.addWidget(self.posLat,0,0)
         grid_layout.addWidget(self.moinsLatShoot,0,1)
         grid_layout.addWidget(self.moinsLat,0,2)
@@ -274,7 +275,7 @@ class WidgetCible(QWidget):
 
         self.setLayout(vbox1)
         self.posVert.clicked.connect(lambda:self.open_widget(self.VertWidget))
-        self.posLat.clicked.connect(lambda:self.open_widget(self.VertWidget))
+        self.posLat.clicked.connect(lambda:self.open_widget(self.LatWidget))
         self.threadLat = PositionThread(self,mot=self.MotLat) # thread for displaying position Lat
         self.threadLat.POS.connect(self.PositionLat)
         self.threadVert = PositionThread(self,mot=self.MotVert) # thread for displaying  position Vert
@@ -383,7 +384,7 @@ class WidgetCible(QWidget):
         a = a * self.unitChangeLat
 
         self.position_Lat.setText(str(round(a,2))+' um ') 
-        self.position_Lat.setStyleSheet('font: bold 18pt;color:white')
+        
         self.posX = a
         self.posiAct.setData(x=[self.posX],y=[self.posY])
 
@@ -397,7 +398,7 @@ class WidgetCible(QWidget):
         a = a*self.unitChangeLat
 
         self.position_Vert.setText(str(round(a,2)) + ' um ')
-        self.position_Vert.setStyleSheet('font: bold 18pt;color:white')      
+              
         self.posY = a
 
     def pMoveLat(self):
@@ -449,15 +450,15 @@ class WidgetCible(QWidget):
     def startThread2(self):
         self.threadLat.ThreadINIT()
         self.threadLat.start()
-        time.sleep(0.11)
+        time.sleep(0.07)
         self.threadVert.ThreadINIT()
         self.threadVert.start()
 
     def changeValue(self):
-        self.conf.setValue('MAIN'+'/stepLat',self.jogStepLat.value())
-        self.conf.setValue('MAIN'+'/stepVert',self.jogStepVert.value())
-        self.conf.setValue('MAIN'+'/vertMax',self.valMax.value())
-        self.conf.setValue('MAIN'+'/vertMin',self.valMin.value())
+        self.conf.setValue(self.name+'/stepLat',self.jogStepLat.value())
+        self.conf.setValue(self.name+'/stepVert',self.jogStepVert.value())
+        self.conf.setValue(self.name+'/vertMax',self.valMax.value())
+        self.conf.setValue(self.name+'/vertMin',self.valMin.value())
 
     def closeEvent(self, event):
         """ 

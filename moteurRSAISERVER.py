@@ -277,10 +277,10 @@ class MOTORRSAI():
         cmd = 'rmove'
         pos = int(posrelatif)
         cmdsend = "%s, %s, %s,%s" %(self.IpAdress,self.NoMotor,cmd,pos)
-        
-        rec = self.sendMessage(cmdsend)
-        if rec != 'ok':
-            print('error cmd')
+        self.sendMessage(cmdsend)
+        # rec = self.sendMessage(cmdsend)
+        # if rec != 'ok':
+        #     print('error cmd')
         
 
     def move(self,pos,vitesse=1000):
@@ -290,10 +290,10 @@ class MOTORRSAI():
         cmd = 'move'
         pos = int(pos)
         cmdsend =" %s, %s, %s,%s" %(self.IpAdress,self.NoMotor,cmd,pos)
-        
-        rec = self.sendMessage(cmdsend)
-        if rec != 'ok':
-            print('error cmd')
+        self.sendMessage(cmdsend)
+        # rec = self.sendMessage(cmdsend)
+        # if rec != 'ok':
+        #     print('error cmd')
 
     def setzero(self):
         """

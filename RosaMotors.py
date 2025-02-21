@@ -152,12 +152,12 @@ class MAINMOTOR(QWidget):
         ################################################################################################""
         # Special Button
         grid_layout = QGridLayout()
-        self.cible = WidgetCible(IPVert='10.0.1.30', MotVert = 10 , IPLat='10.0.1.30', MotLat = 7,titre= 'cible rosa')
+        self.cible = WidgetCible(IPVert='10.0.1.30', MotVert = 10 , IPLat='10.0.1.30', MotLat = 7,titre= 'cible rosa',name= 'CIBLE')
         self.cible_But = QPushButton('Cible')
         
         self.cible_But.clicked.connect(lambda:self.open_widget(self.cible))
 
-        self.MPWidget = WidgetCible(IPVert='10.0.1.30', MotVert = 12 , IPLat='10.0.1.30', MotLat = 13, titre ='MP Rosa')
+        self.MPWidget = WidgetCible(IPVert='10.0.1.30', MotVert = 12 , IPLat='10.0.1.30', MotLat = 13, titre ='MP Rosa',name='MP')
         self.MP_But = QPushButton('MP')
         self.MP_But.clicked.connect(lambda:self.open_widget(self.MPWidget))
 

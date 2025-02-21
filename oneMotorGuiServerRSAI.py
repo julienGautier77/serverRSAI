@@ -144,9 +144,10 @@ class ONEMOTORGUI(QWidget) :
 
             self.refValueStep.append(ref /self.stepmotor[0]  )
 
+        self.refValueStepOld = self.refValueStep
         #print('ref debut init step ',self.refValueStep )
         self.refName = self.MOT[0].refName
-        
+        self.refNameOld= self.refName 
         iii=0
         for saveNameButton in self.posText: # reference name
             saveNameButton.setText(self.refName[iii]) # print  ref name
@@ -159,14 +160,18 @@ class ONEMOTORGUI(QWidget) :
     def updateDB(self):
         #  update the Data base 
         i = 0
-        for ref in self.refValueStep: 
-            ref = ref * float((self.stepmotor[0])) # en micron
-            a = self.MOT[0].setRefValue(i,int(ref))
-            i+=1
+        if self.refValueStep != self.refValueStepOld :
+            print('update ref values')
+            for ref in self.refValueStep: 
+                ref = ref * float((self.stepmotor[0])) # en micron
+                a = self.MOT[0].setRefValue(i,int(ref))
+                i+=1
         i = 0
-        for ref in self.refName : 
-            self.MOT[0].setRefName(i,ref)
-            i+=1
+        if self.refName != self.refNameOld :
+            print('update ref Name')
+            for ref in self.refName : 
+                self.MOT[0].setRefName(i,ref)
+                i+=1
    
     def startThread2(self):
         # start position and state thread
@@ -640,17 +645,13 @@ class ONEMOTORGUI(QWidget) :
         '''
         self.thread.stopThread()
         self.isWinOpen = False
-        # self.updateDB()
+        self.updateDB()
 
         if self.scanWidget.isWinOpen is True:
             self.scanWidget.close()
             print('close moto widget')
         time.sleep(0.05)
-
-
- 
-
-        
+  
 class REF1M(QWidget):
     
     def __init__(self,num=0, parent=None):
