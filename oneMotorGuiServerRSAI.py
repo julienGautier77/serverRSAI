@@ -20,7 +20,7 @@ import time
 import os
 import qdarkstyle
 import pathlib
-
+from PyQt6.QtCore import Qt
 import __init__     
 from scanMotor import SCAN
 
@@ -122,7 +122,7 @@ class ONEMOTORGUI(QWidget) :
         self.unit()
         self.jogStep.setValue(self.jogValue)
         self.actionButton()
-        self.setup_event()
+        
         
     def update(self):
         # update from the server RSAI python 
@@ -331,7 +331,16 @@ class ONEMOTORGUI(QWidget) :
         self.Take = [self.REF1.take,self.REF2.take,self.REF3.take,self.REF4.take,self.REF5.take,self.REF6.take]
         self.jogStep.setFocus()
         self.refShow()
-        
+        self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+
+    def focusInEvent(self,event):
+        super().focusInEvent(event)
+        self.thread.positionSleep = 0.05
+
+    def focusOutEvent(self,event):
+        super().focusOutEvent(event)
+        self.thread.positionSleep = 1   
+
     def actionButton(self):
         '''
            buttons action setup 
@@ -631,47 +640,15 @@ class ONEMOTORGUI(QWidget) :
         '''
         self.thread.stopThread()
         self.isWinOpen = False
-        self.updateDB()
+        # self.updateDB()
 
         if self.scanWidget.isWinOpen is True:
             self.scanWidget.close()
             print('close moto widget')
-        time.sleep(0.1)
+        time.sleep(0.05)
 
 
-    def eventFilter(self, obj, event):
-        if event.type() == event.FocusIn:
-            widget_type = obj.__class__.__name__
-            print('focus')   
-        elif event.type() == event.FocusOut:
-            widget_type = obj.__class__.__name__
-            print('focus out ')
-        return super().eventFilter(obj,event)
-    
-    def setup_event(self):
-        print('')
-#        for widget in self.findChild(QPushButton):
-            #print('tt')
-            #widget.installEventFilter(self)
-
-    # def focusInEvent(self, event):   
-    #     print('focus event')
-    #     # self.parent.threadLat.ThreadINIT()
-    #     # self.parent.threadVert.ThreadINIT()
-        
-    #     # self.parent.threadLat.start()
-    #     time.sleep(0.05)
-        
-    #     self.parent.threadVert.start()
-    #     super().focusInEvent(event)
-    #     event.accept()
-        
-    # def focusOutEvent(self, event):   
-    #     print('focus out event')
-    #     # self.parent.threadLat.stopThread()
-    #     # self.parent.threadVert.stopThread()
-    #     super().focusOutEvent(event)
-    #     event.accept()      
+ 
 
         
 class REF1M(QWidget):
@@ -760,7 +737,7 @@ class PositionThread(QtCore.QThread):
         self.MOT = mot
         self.parent = parent
         self.stop = False
-
+        self.positionSleep = 0.05
     def run(self):
         while True:
             if self.stop is True:
@@ -768,7 +745,7 @@ class PositionThread(QtCore.QThread):
             else:
                 
                 Posi = (self.MOT.position())
-                time.sleep(0.05)
+                time.sleep(self.positionSleep)
                 etat = self.MOT.etatMotor()
                 try :
                     # print(etat)

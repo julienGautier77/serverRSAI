@@ -77,11 +77,16 @@ class WidgetCible(QWidget):
     """  widget tree with IP adress and motor
  
     """
-    def __init__(self,parent=None):
+    def __init__(self,IPVert,MotVert,IPLat,MotLat,titre='',parent=None):
 
         super(WidgetCible, self).__init__(parent)
         self.isWinOpen = False
         self.parent = parent
+        self.IPVert = IPVert
+        self.MotVert = MotVert
+        self.IPLat = IPLat
+        self.MotLat = MotLat 
+        self.titre = titre
         p = pathlib.Path(__file__)
         sepa = os.sep
         self.icon = str(p.parent) + sepa + 'icons' + sepa
@@ -90,10 +95,10 @@ class WidgetCible(QWidget):
         self.setWindowIcon(QIcon(self.icon + 'LOA.png'))
         fileconf = "confCible.ini"
         self.conf = QtCore.QSettings(fileconf,QtCore.QSettings.Format.IniFormat)
-        self.VertWidget = ONEMOTORGUI(IpAdress = '10.0.1.30', NoMotor = 7)
-        self.LatWidget = ONEMOTORGUI(IpAdress = '10.0.1.30', NoMotor = 10)
-        self.MotLat = moteurRSAISERVER.MOTORRSAI( '10.0.1.30', 7)
-        self.MotVert = moteurRSAISERVER.MOTORRSAI('10.0.1.30',  10)
+        self.VertWidget = ONEMOTORGUI(IpAdress = self.IPVert, NoMotor = self.MotVert)
+        self.LatWidget = ONEMOTORGUI(IpAdress = self.IPLat, NoMotor = self.MotLat)
+        self.MotLat = moteurRSAISERVER.MOTORRSAI( self.IPVert, self.MotLat)
+        self.MotVert = moteurRSAISERVER.MOTORRSAI(self.IPLat,  self.MotVert)
         self.unitChangeLat = float((1/self.MotLat.getStepValue()))
         self.unitChangeVert = float((1/self.MotVert.getStepValue()))
         
@@ -109,7 +114,7 @@ class WidgetCible(QWidget):
 
     def setup(self):
 
-        self.setWindowTitle('Cible ROSA')
+        self.setWindowTitle(self.titre)
         size = 20
         vbox1 = QVBoxLayout()
         self.widgetRange = WINDOWRANGE()
@@ -434,7 +439,7 @@ class WidgetCible(QWidget):
         if fene.isWinOpen is False:
             #New widget"
             fene.show()
-            
+            fene.startThread2()
             fene.isWinOpen = True
         else:
             #fene.activateWindow()

@@ -152,14 +152,14 @@ class MAINMOTOR(QWidget):
         ################################################################################################""
         # Special Button
         grid_layout = QGridLayout()
-        self.cible = WidgetCible()
+        self.cible = WidgetCible(IPVert='10.0.1.30', MotVert = 10 , IPLat='10.0.1.30', MotLat = 7,titre= 'cible rosa')
         self.cible_But = QPushButton('Cible')
         
         self.cible_But.clicked.connect(lambda:self.open_widget(self.cible))
 
-        self.jetWidget = THREEMOTORGUI('10.0.1.31',11,'10.0.1.31',13,'10.0.1.31',14,nomWin='JET')
-        self.jet_But = QPushButton('Jet')
-        self.jet_But.clicked.connect(lambda:self.open_widget(self.jetWidget))
+        self.MPWidget = WidgetCible(IPVert='10.0.1.30', MotVert = 12 , IPLat='10.0.1.30', MotLat = 13, titre ='MP Rosa')
+        self.MP_But = QPushButton('MP')
+        self.MP_But.clicked.connect(lambda:self.open_widget(self.MPWidget))
 
         self.P1TB = TILTMOTORGUI('10.0.1.30',1,'10.0.1.30',2,nomWin='P1 Turning Box ',nomTilt='P1 TB')
         self.P1TB_But = QPushButton('P1 TB')
@@ -195,7 +195,7 @@ class MAINMOTOR(QWidget):
         grid_layout.addWidget(self.P1OAP_But ,2,0)
 
         grid_layout.addWidget(self.cible_But,2,1)
-        grid_layout.addWidget(self.jet_But,2,2)
+        grid_layout.addWidget(self.MP_But,2,2)
         vbox1.addLayout(grid_layout)
         
 
