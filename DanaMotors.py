@@ -151,6 +151,7 @@ class MAINMOTOR(QWidget):
         
         ################################################################################################""
         # Special Button
+
         grid_layout = QGridLayout()
         self.cible = WidgetCible(IPVert='10.0.1.30', MotVert = 10 , IPLat='10.0.1.30', MotLat = 7,titre= 'cible rosa',name= 'CIBLE')
         self.cible_But = QPushButton('Cible')
@@ -196,7 +197,7 @@ class MAINMOTOR(QWidget):
 
         grid_layout.addWidget(self.cible_But,2,1)
         grid_layout.addWidget(self.MP_But,2,2)
-        vbox1.addLayout(grid_layout)
+        #vbox1.addLayout(grid_layout)
         
 
     def actionPush(self,item:QTreeWidgetItem,colum:int):

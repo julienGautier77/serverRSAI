@@ -13,7 +13,7 @@ import time
 from PyQt6 import QtCore
 from PyQt6.QtWidgets import QMessageBox,QApplication
 import  socket
-from  PyQt6.QtCore import QUuid, QMutex
+from  PyQt6.QtCore import QUuid, QMutex,pyqtSlot
 import sys, os 
 import socket as _socket
 import ast
@@ -147,7 +147,7 @@ class MOTORRSAI():
         mut.unlock() 
             
         return retour
-    
+    @pyqtSlot(object)
     def position(self):
         '''
         return motor postion
@@ -163,7 +163,14 @@ class MOTORRSAI():
             self._position = 1 
         return self._position
         
-    
+    def setPosition(self,pos):
+        '''
+        set position of the motor
+        '''
+        cmd = 'preset'
+        cmdsend = " %s, %s, %s, %s" %(self.IpAdress,self.NoMotor,cmd,pos)
+        dat = self.sendMessage(cmdsend)
+
     def getName(self):
         '''
         get motor name
@@ -348,8 +355,10 @@ class MOTORRSAI():
 
 
 if __name__ == '__main__':
-    a = MOTORRSAI('10.0.6.30',1)
-    print(a.step)
-    #a.setRefName(0,'test')
+    a = MOTORRSAI('10.0.2.30',14)
+    print(a.position())
+    a.setPosition(2000)
+    time.sleep(1)
+    print(a.position())
     #closeConnection()
 

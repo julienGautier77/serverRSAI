@@ -9,7 +9,7 @@ Created on 10 December 2023
 
 from PyQt6 import QtCore
 from PyQt6.QtWidgets import QApplication
-from PyQt6.QtWidgets import QWidget, QMessageBox, QLineEdit, QToolButton
+from PyQt6.QtWidgets import QWidget, QMessageBox, QLineEdit, QToolButton,QInputDialog
 from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout, QPushButton, QGridLayout, QDoubleSpinBox, QCheckBox
 from PyQt6.QtWidgets import QComboBox, QLabel
 from PyQt6.QtGui import QIcon
@@ -55,6 +55,7 @@ class ONEMOTORGUI(QWidget) :
         self.indexUnit = unit
         self.jogValue = jogValue
         self.etat = 'ok'
+        self.etat_old = 'ok'
         self.IpAdress = IpAdress
         self.NoMotor = NoMotor
         self.MOT = [0]
@@ -198,22 +199,10 @@ class ONEMOTORGUI(QWidget) :
         hboxTitre.addWidget(self.butPosButt)
         vbox1.addLayout(hboxTitre)
         
-        hShoot = QHBoxLayout()
-        self.shootCibleButton = QPushButton('Shot')
-        self.shootCibleButton.setStyleSheet("font: 12pt;background-color: red")
-        self.shootCibleButton.setMaximumWidth(100)
-        self.shootCibleButton.setMinimumWidth(100)
-        hShoot.addWidget(self.shootCibleButton)
-        self.updateButton = QToolButton()
-        self.updateButton.setToolTip( "update from DB")
-        self.updateButton.setStyleSheet("QToolButton:!pressed{border-image: url(%s);background-color: transparent ;border-color: gray;}""QToolButton:pressed{image: url(%s);background-color: gray ;border-color: gray}"%(self.iconUpdate,self.iconUpdate))
-        hShoot.addWidget(self.updateButton)
-        vbox1.addLayout(hShoot)
-        
         hbox0 = QHBoxLayout()
         self.position = QLabel('1234567')
         self.position.setMaximumWidth(300)
-        self.position.setStyleSheet("font: bold 12pt" )
+        self.position.setStyleSheet("font: bold 30pt" )
         
         self.unitBouton = QComboBox()
         self.unitBouton.addItem('Step')
@@ -302,6 +291,10 @@ class ONEMOTORGUI(QWidget) :
         self.scan = QPushButton('Scan')
         self.scan.setMaximumWidth(90)
         vbox2.addWidget(self.scan)
+        self.presetButton = QPushButton('Preset')
+        self.presetButton.setMaximumWidth(90)
+        vbox2.addWidget(self.presetButton)
+
         hbox2.addLayout(vbox2)
         
         vbox1.addLayout(hbox2)
@@ -361,7 +354,7 @@ class ONEMOTORGUI(QWidget) :
         #self.refZeroButton.clicked.connect(self.RefMark) # todo
         self.stopButton.clicked.connect(self.StopMot) #  stop motors 
         self.showRef.clicked.connect(self.refShow) # show references widgets
-        self.shootCibleButton.clicked.connect(self.ShootAct)
+        self.presetButton.clicked.connect(self.preset) # set postion
         iii = 0
         for saveNameButton in self.posText: # reference name
             saveNameButton.textChanged.connect(self.savName)
@@ -380,7 +373,7 @@ class ONEMOTORGUI(QWidget) :
         for takeButton in self.Take:
             takeButton.clicked.connect(self.take) # take the value 
         
-        self.updateButton.clicked.connect(self.update)
+        
 
     def open_widget(self,fene):
         
@@ -530,27 +523,29 @@ class ONEMOTORGUI(QWidget) :
         a = float(Pos)
         b = a # value in step
         a = a * self.unitChange # value with unit changed
-        if self.etat == 'FDC-':
-            self.enPosition.setText(self.etat)
-            self.enPosition.setStyleSheet('font: bold 15pt;color:red')
-        elif self.etat == 'FDC+':
-            self.enPosition.setText('FDC +')
-            self.enPosition.setStyleSheet('font: bold 15pt;color:red')
-        elif self.etat == 'Poweroff' :
-            self.enPosition.setText('Power Off')
-            self.enPosition.setStyleSheet('font: bold 15pt;color:red')
-        elif self.etat == 'mvt' :
-            self.enPosition.setText('Mvt...')
-            self.enPosition.setStyleSheet('font: bold 15pt;color:white')
-        elif self.etat == 'notconnected':
-            self.enPosition.setText('python server Not connected')
-            self.enPosition.setStyleSheet('font: bold 8pt;color:red')
-        elif self.etat == 'errorConnect':
-            self.enPosition.setText('equip Not connected')
-            self.enPosition.setStyleSheet('font: bold 8pt;color:red')
-    
         self.position.setText(str(round(a,2))) 
-        self.position.setStyleSheet('font: bold 15pt;color:white')
+        self.position.setStyleSheet('font: bold 50pt;color:green')
+        if self.etat != self.etat_old: 
+            if self.etat == 'FDC-':
+                self.enPosition.setText(self.etat)
+                self.enPosition.setStyleSheet('font: bold 15pt;color:red')
+            elif self.etat == 'FDC+':
+                self.enPosition.setText('FDC +')
+                self.enPosition.setStyleSheet('font: bold 15pt;color:red')
+            elif self.etat == 'Poweroff' :
+                self.enPosition.setText('Power Off')
+                self.enPosition.setStyleSheet('font: bold 15pt;color:red')
+            elif self.etat == 'mvt' :
+                self.enPosition.setText('Mvt...')
+                self.enPosition.setStyleSheet('font: bold 15pt;color:white')
+            elif self.etat == 'notconnected':
+                self.enPosition.setText('python server Not connected')
+                self.enPosition.setStyleSheet('font: bold 8pt;color:red')
+            elif self.etat == 'errorConnect':
+                self.enPosition.setText('equip Not connected')
+                self.enPosition.setStyleSheet('font: bold 8pt;color:red')
+    
+        
         
         positionConnue = 0 # 
         precis = 5 # to show position name
@@ -626,11 +621,13 @@ class ONEMOTORGUI(QWidget) :
         vref = int(self.absRef[int(nbRef)-1].value())
         self.refValueStep[int(nbRef)-1] = vref  # on sauvegarde en step 
 
-    def ShootAct(self):
-        try: 
-            self.tir.TirAct()  
-        except: pass
-    
+    def preset(self):
+        val , ok = QInputDialog.getDouble(self, 'Set Potion value','Position value to set(%s) ' %self.unitName )
+        if ok:
+            print(val)
+            val = val / self.unitChange
+            self.MOT[0].setPosition(int(val))
+
     def closeEvent(self, event):
         """ 
         When closing the window
@@ -739,6 +736,9 @@ class PositionThread(QtCore.QThread):
         self.parent = parent
         self.stop = False
         self.positionSleep = 0.05
+        self.etat_old = ""
+        self.Posi_old = 0
+
     def run(self):
         while True:
             if self.stop is True:
@@ -751,7 +751,10 @@ class PositionThread(QtCore.QThread):
                 try :
                     # print(etat)
                     #time.sleep(0.1)
-                    self.POS.emit([Posi,etat])
+                    if self.Posi_old != Posi or self.etat_old != etat: # on emet que si different
+                        self.POS.emit([Posi,etat])
+                        self.Posi_old = Posi
+                        self.etat_old = etat
                     
                 except:
                     print('error emit')
