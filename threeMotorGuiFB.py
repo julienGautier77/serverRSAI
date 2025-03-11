@@ -56,6 +56,9 @@ class THREEMOTORGUI(QWidget) :
         p = pathlib.Path(__file__)
         sepa = os.sep
         self.etat = 'ok'
+        self.etatFoc_old ='ok'
+        self.etatVert_old ='ok'
+        self.etatLat_old ='ok'
         self.icon = str(p.parent) + sepa + 'icons' +sepa
         self.nomWin = nomWin
         self.iconPlay = self.icon+"playGreen.png"
@@ -194,7 +197,7 @@ class THREEMOTORGUI(QWidget) :
         # update from DB
         # to avoid to access to the database 
         for zzi in range(0,2):
-            print('update')
+            # print('update')
             self.MOT[zzi].update()
             time.sleep(0.1)
             self.stepmotor[zzi] = float(1/(self.MOT[zzi].getStepValue())) # list of stepmotor values for unit conversion
@@ -219,6 +222,13 @@ class THREEMOTORGUI(QWidget) :
         for ref in self.refValueFoc:
             self.refValueFocStep.append(ref /self.stepmotor[2])
         self.refNameFoc = self.MOT[0].refName
+        
+        self.refValueLatStepOld = self.refValueLatStep
+        self.refValueVertStepOld = self.refValueVertStep
+        self.refValueFocStepOld = self.refValueFocStep
+        self.refNameLatOld = self.refNameLat
+        self.refNameVertOld = self.refNameVert
+        self.refNameFocOld = self.refNameFoc
 
         # update ref Name (ref name = ref La) and position ref value
         iii = 0
@@ -239,23 +249,29 @@ class THREEMOTORGUI(QWidget) :
             eee+=1
 
     def updateDB(self):
-        #  update ref name and ref position to the Data base 
-        for m in range (0,2):
-            i = 1
+        #  update ref name and ref position to the Data base
+        i = 0
+        if (self.refNameLat != self.refNameLat):
             for ref in self.refNameLat : 
-                self.MOT[m].setRefName(i,ref)
+                self.MOT[0].setRefName(i,ref)
                 i+=1
-            #♦self.MOT[m].update()
-        
-        for ref in self.refValueLatStep : 
-
-            self.MOT[0].setRefValue(i,ref*self.stepmotor[0])
-            
-        for ref in self.refValueVertStep : 
-            self.MOT[1].setRefValue(i,ref*self.stepmotor[1])
-
-        for ref in self.refValueFocStep : 
-            self.MOT[2].setRefValue(i,ref*self.stepmotor[2])
+        if (self.refNameVert != self.refNameVert):
+            for ref in self.refNameVert : 
+                self.MOT[1].setRefName(i,ref)
+                i+=1
+        if (self.refNameFoc != self.refNameFoc):
+            for ref in self.refNameFoc : 
+                self.MOT[2].setRefName(i,ref)
+                i+=1
+        if self.refValueLatStep != self.refValueLatStepOld :
+            for ref in self.refValueLatStep : 
+                self.MOT[0].setRefValue(i,ref*self.stepmotor[0])
+        if self.refValueVertStep != self.refValueVertStepOld :  
+            for ref in self.refValueVertStep : 
+                self.MOT[1].setRefValue(i,ref*self.stepmotor[1])
+        if self.refValueFocStep != self.refValueFocStepOld :
+            for ref in self.refValueFocStep : 
+                self.MOT[2].setRefValue(i,ref*self.stepmotor[2])
 
     def startThread2(self):
         self.threadVert.ThreadINIT()
@@ -296,11 +312,7 @@ class THREEMOTORGUI(QWidget) :
         vbox1.addLayout(hboxTitre)
         
         hShoot = QHBoxLayout()
-        self.shootCibleButton = QPushButton('Shot')
-        self.shootCibleButton.setStyleSheet("font: 12pt;background-color: red")
-        self.shootCibleButton.setMaximumWidth(100)
-        self.shootCibleButton.setMinimumWidth(100)
-        hShoot.addWidget(self.shootCibleButton)
+        
         self.updateButton = QToolButton()
         self.updateButton.setToolTip( "update from DB")
         self.updateButton.setStyleSheet("QToolButton:!pressed{border-image: url(%s);background-color: transparent ;border-color: gray;}""QToolButton:pressed{image: url(%s);background-color: gray ;border-color: gray}"%(self.iconUpdate,self.iconUpdate))
@@ -541,7 +553,7 @@ class THREEMOTORGUI(QWidget) :
         self.posVert.clicked.connect(lambda:self.open_widget(self.VertWidget))
         self.posLat.clicked.connect(lambda:self.open_widget(self.LatWidget))
         self.posFoc.clicked.connect(lambda:self.open_widget(self.FocWidget))
-        self.shootCibleButton.clicked.connect(self.ShootAct)
+        
         
         iii = 0
         for saveNameButton in self.posText: # reference name
@@ -812,33 +824,37 @@ class THREEMOTORGUI(QWidget) :
         ''' 
         Position Lat  display with the second thread
         '''
+
         Pos = Posi[0]
         self.etatLat = str(Posi[1])
         a = float(Pos)
         b = a # value in step
         a = a*self.unitChangeLat # value with unit changed
-        if self.etatLat == 'FDC-':
-            self.enPosition_Lat.setText('FDC -')
-            self.enPosition_Lat.setStyleSheet('font: bold 12pt;color:red')
-            
-        elif self.etatLat == 'FDC+':
-            self.enPosition_Lat.setText('FDC +')
-            self.enPosition_Lat.setStyleSheet('font: bold 12pt;color:red')
-        elif self.etatLat == 'Poweroff' :
-            self.enPosition_Lat.setText('Power Off')
-            self.enPosition_Lat.setStyleSheet('font: bold 12pt;color:red')
-        elif self.etatLat == 'mvt' :
-             self.enPosition_Lat.setText('Mvt')
-             self.enPosition_Lat.setStyleSheet('font: bold 12pt;color:white')
-        elif self.etat == 'notconnected':
-            self.enPosition.setText('python server Not connected')
-            self.enPosition.setStyleSheet('font: bold 8pt;color:red')
-        elif self.etat == 'errorConnect':
-            self.enPosition.setText('equip Not connected')
-            self.enPosition.setStyleSheet('font: bold 8pt;color:red')
         self.position_Lat.setText(str(round(a,2))) 
         self.position_Lat.setStyleSheet('font: bold 25pt;color:white')
-            
+
+        if self.etatLat_old != self.etatLat :
+            self.etatLat_old = self.etatLat 
+            if self.etatLat == 'FDC-':
+                self.enPosition_Lat.setText('FDC -')
+                self.enPosition_Lat.setStyleSheet('font: bold 12pt;color:red')
+                
+            elif self.etatLat == 'FDC+':
+                self.enPosition_Lat.setText('FDC +')
+                self.enPosition_Lat.setStyleSheet('font: bold 12pt;color:red')
+            elif self.etatLat == 'Poweroff' :
+                self.enPosition_Lat.setText('Power Off')
+                self.enPosition_Lat.setStyleSheet('font: bold 12pt;color:red')
+            elif self.etatLat == 'mvt' :
+                self.enPosition_Lat.setText('Mvt')
+                self.enPosition_Lat.setStyleSheet('font: bold 12pt;color:white')
+            elif self.etat == 'notconnected':
+                self.enPosition_Lat.setText('python server Not connected')
+                self.enPosition_Lat.setStyleSheet('font: bold 8pt;color:red')
+            elif self.etat == 'errorConnect':
+                self.enPosition_Lat.setText('equip Not connected')
+                self.enPosition_Lat.setStyleSheet('font: bold 8pt;color:red')
+
         positionConnue_Lat = 0 # 
         precis = 5
         if (self.etatLat == 'ok' or self.etatLat == '?'):
@@ -861,27 +877,29 @@ class THREEMOTORGUI(QWidget) :
         a = float(Pos)
         b = a # value in step 
         a = a * self.unitChangeVert # value  with unit changed
-        if self.etatVert == 'FDC-':
-            self.enposition_Vert.setText('FDC -')
-            self.enposition_Vert.setStyleSheet('font: bold 12pt;color:red')
-            
-        elif self.etatVert == 'FDC+':
-            self.enPosition_Vert.setText('FDC +')
-            self.position_Vert.setStyleSheet('font: bold 12pt;color:red')
-        elif self.etatVert == 'Poweroff' :
-            self.enPosition_Vert.setText('Power Off')
-            self.enPosition_Vert.setStyleSheet('font: bold 12pt;color:red')
-        elif self.etatVert == 'mvt' :
-             self.enPosition_Vert.setText('Mvt')
-             self.enPosition_Vert.setStyleSheet('font: bold 12pt;color:white')
-        elif self.etat == 'notconnected':
-            self.enPosition.setText('python server Not connected')
-            self.enPosition.setStyleSheet('font: bold 8pt;color:red')
-        elif self.etat == 'errorConnect':
-            self.enPosition.setText('equip Not connected')
-            self.enPosition.setStyleSheet('font: bold 8pt;color:red')   
         self.position_Vert.setText(str(round(a,2))) 
         self.position_Vert.setStyleSheet('font: bold 25pt;color:white')
+        if self.etatVert != self.etatVert_old:
+            self.etatVert_old = self.etatVert
+            if self.etatVert == 'FDC-':
+                self.enPosition_Vert.setText('FDC -')
+                self.enPosition_Vert.setStyleSheet('font: bold 12pt;color:red')
+                
+            elif self.etatVert == 'FDC+':
+                self.enPosition_Vert.setText('FDC +')
+                self.position_Vert.setStyleSheet('font: bold 12pt;color:red')
+            elif self.etatVert == 'Poweroff' :
+                self.enPosition_Vert.setText('Power Off')
+                self.enPosition_Vert.setStyleSheet('font: bold 12pt;color:red')
+            elif self.etatVert == 'mvt' :
+                self.enPosition_Vert.setText('Mvt')
+                self.enPosition_Vert.setStyleSheet('font: bold 12pt;color:white')
+            elif self.etat == 'notconnected':
+                self.enPosition_Vert.setText('python server Not connected')
+                self.enPosition_Vert.setStyleSheet('font: bold 8pt;color:red')
+            elif self.etat == 'errorConnect':
+                self.enPosition_Vert.setText('equip Not connected')
+                self.enPosition_Vert.setStyleSheet('font: bold 8pt;color:red')   
             
         positionConnue_Vert = 0 # 
         precis = 5
@@ -903,27 +921,28 @@ class THREEMOTORGUI(QWidget) :
         a = float(Pos)
         b = a # value in step 
         a = a * self.unitChangeFoc # 
-        
-        if self.etatFoc == 'FDC-':
-            self.enposition_Foc.setText('FDC -')
-            self.enposition_Foc.setStyleSheet('font: bold 12pt;color:red')
-        elif self.etatFoc == 'FDC+':
-            self.enPosition_Foc.setText('FDC +')
-            self.enPosition_Foc.setStyleSheet('font: bold 12pt;color:red')
-        elif self.etatFoc == 'Poweroff' :
-            self.enPosition_Foc.setText('Power Off')
-            self.enPosition_Foc.setStyleSheet('font: bold 12pt;color:red')
-        elif self.etatFoc == 'mvt' :
-             self.enPosition_Foc.setText('Mvt')
-             self.enPosition_Foc.setStyleSheet('font: bold 12pt;color:white')
-        elif self.etat == 'notconnected':
-            self.enPosition.setText('python server Not connected')
-            self.enPosition.setStyleSheet('font: bold 8pt;color:red')
-        elif self.etat == 'errorConnect':
-            self.enPosition.setText('equip Not connected')
-            self.enPosition.setStyleSheet('font: bold 8pt;color:red')   
         self.position_Foc.setText(str(round(a,2))) 
         self.position_Foc.setStyleSheet('font: bold 25pt;color:white')
+        if self.etatFoc != self.etatFoc_old :
+            self.etatFoc_old =self.etatFoc
+            if self.etatFoc == 'FDC-':
+                self.enPosition_Foc.setText('FDC -')
+                self.enPosition_Foc.setStyleSheet('font: bold 12pt;color:red')
+            elif self.etatFoc == 'FDC+':
+                self.enPosition_Foc.setText('FDC +')
+                self.enPosition_Foc.setStyleSheet('font: bold 12pt;color:red')
+            elif self.etatFoc == 'Poweroff' :
+                self.enPosition_Foc.setText('Power Off')
+                self.enPosition_Foc.setStyleSheet('font: bold 12pt;color:red')
+            elif self.etatFoc == 'mvt' :
+                self.enPosition_Foc.setText('Mvt')
+                self.enPosition_Foc.setStyleSheet('font: bold 12pt;color:white')
+            elif self.etat == 'notconnected':
+                self.enPosition_Foc.setText('python server Not connected')
+                self.enPosition_Foc.setStyleSheet('font: bold 8pt;color:red')
+            elif self.etat == 'errorConnect':
+                self.enPosition_Foc.setText('equip Not connected')
+                self.enPosition_Foc.setStyleSheet('font: bold 8pt;color:red')   
         
         positionConnue_Foc = 0
         precis = 5
@@ -1156,7 +1175,9 @@ class PositionThread(QtCore.QThread):
         self.MOT = mot
         self.parent = parent
         self.stop = False
-        
+        self.etat_old = ""
+        self.Posi_old = 0
+
     def run(self):
         while True:
             if self.stop is True:
@@ -1167,7 +1188,8 @@ class PositionThread(QtCore.QThread):
                 #try :
                 etat = self.MOT.etatMotor()
                 #time.sleep(0.1)
-                self.POS.emit([Posi,etat])
+                if self.Posi_old != Posi or self.etat_old != etat: # on emet que si different
+                    self.POS.emit([Posi,etat])
                 #time.sleep(0.1)
                 #except: 
                     #print('error emit etat')  

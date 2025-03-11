@@ -19,7 +19,7 @@ from threeMotorGuiFB import THREEMOTORGUI
 from TiltGui import TILTMOTORGUI
 from PyQt6 import QtCore
 import tirSalleJaune as tirSJ
-from AdrienCible import WidgetCible
+
 
 class MAINMOTOR(QWidget):
     """  widget tree with IP adress and motor
@@ -153,36 +153,38 @@ class MAINMOTOR(QWidget):
         # Special Button
 
         grid_layout = QGridLayout()
-        self.cible = WidgetCible(IPVert='10.0.1.30', MotVert = 10 , IPLat='10.0.1.30', MotLat = 7,titre= 'cible rosa',name= 'CIBLE')
-        self.cible_But = QPushButton('Cible')
-        
+        self.cible = THREEMOTORGUI(IPVert='10.0.6.30', NoMotorVert = 7 , IPLat='10.0.6.30', NoMotorLat = 13,IPFoc='10.0.6.30', NoMotorFoc= 12,nomWin='DANA JET',nomTilt='JET1',nomFoc='Jet Foc')
+        self.cible_But = QPushButton('JET')
         self.cible_But.clicked.connect(lambda:self.open_widget(self.cible))
 
-        self.MPWidget = WidgetCible(IPVert='10.0.1.30', MotVert = 12 , IPLat='10.0.1.30', MotLat = 13, titre ='MP Rosa',name='MP')
-        self.MP_But = QPushButton('MP')
-        self.MP_But.clicked.connect(lambda:self.open_widget(self.MPWidget))
+        self.camWidget = THREEMOTORGUI(IPVert='10.0.6.31', NoMotorVert = 13 , IPLat='10.0.6.31', NoMotorLat = 11,IPFoc='10.0.6.31', NoMotorFoc= 12,nomWin='Focal Spot DANA',nomTilt='CAM FS',nomFoc='')
+        self.cam_But = QPushButton('CAM')
+        self.cam_But.clicked.connect(lambda:self.open_widget(self.camWidget))
 
-        self.P1TB = TILTMOTORGUI('10.0.1.30',1,'10.0.1.30',2,nomWin='P1 Turning Box ',nomTilt='P1 TB')
+        self.P1TB = TILTMOTORGUI('10.0.6.31',1,'10.0.6.31',2,nomWin='P1 Turning Box ',nomTilt='P1 TB')
         self.P1TB_But = QPushButton('P1 TB')
         self.P1TB_But.clicked.connect(lambda:self.open_widget(self.P1TB))
 
-        self.P2TB = TILTMOTORGUI('10.0.1.30',3,'10.0.1.30',4,nomWin='P2 Turning Box ',nomTilt='P2TB')
+        # self.P2TB = TILTMOTORGUI('10.0.1.30',3,'10.0.1.30',4,nomWin='P2 Turning Box ',nomTilt='P2TB')
         self.P2TB_But = QPushButton('P2 TB')
-        self.P2TB_But.clicked.connect(lambda:self.open_widget(self.P2TB))
+        self.P2TB_But.setEnabled(False)
+        # self.P2TB_But.clicked.connect(lambda:self.open_widget(self.P2TB))
 
-        self.P3TB = TILTMOTORGUI('10.0.1.30',5,'10.0.1.30',6,nomWin='P3 Turning Box ',nomTilt='P3TB')
+        self.P3TB = TILTMOTORGUI('10.0.6.31',3,'10.0.6.31',4,nomWin='P3 Turning Box ',nomTilt='P3TB')
         self.P3TB_But = QPushButton('P3 TB')
         self.P3TB_But.clicked.connect(lambda:self.open_widget(self.P3TB))
 
-        self.P1M = TILTMOTORGUI('10.0.1.31',3,'10.0.1.31',4,nomWin='P1 mirror  ',nomTilt='P1 M')
+        self.P1M = TILTMOTORGUI('10.0.6.31',5,'10.0.1.31',6,nomWin='P1 mirror  ',nomTilt='P1 M')
         self.P1Mir_But = QPushButton('P1 Mir')
         self.P1Mir_But.clicked.connect(lambda:self.open_widget(self.P1M))
         
         self.P2Mir_But = QPushButton('P2 Mir')
-
+        self.P2Mir_But.setEnabled(False)
+        self.P3M = TILTMOTORGUI('10.0.6.31',7,'10.0.1.31',8,nomWin='P3 mirror  ',nomTilt='P1 M')
         self.P3Mir_But = QPushButton('P3 Mir')
+        self.P1Mir_But.clicked.connect(lambda:self.open_widget(self.P3M))
 
-        self.P1OPA = TILTMOTORGUI('10.0.1.31',1,'10.0.1.31',2,nomWin='P1 Spherique  ',nomTilt='P1 Sphe')
+        self.P1OPA = TILTMOTORGUI('10.0.1.31',9,'10.0.1.31',10,nomWin='P1 Spherique  ',nomTilt='P1 Sphe')
         self.P1OAP_But = QPushButton('P1 OAP')
         self.P1OAP_But.clicked.connect(lambda:self.open_widget(self.P1OPA ))
         
@@ -192,12 +194,11 @@ class MAINMOTOR(QWidget):
         grid_layout.addWidget(self.P1Mir_But,1,0)
         grid_layout.addWidget(self.P2Mir_But,1,1)
         grid_layout.addWidget(self.P3Mir_But,1,2)
-        
         grid_layout.addWidget(self.P1OAP_But ,2,0)
-
         grid_layout.addWidget(self.cible_But,2,1)
-        grid_layout.addWidget(self.MP_But,2,2)
-        #vbox1.addLayout(grid_layout)
+        grid_layout.addWidget(self.cam_But ,2,2)
+        
+        vbox1.addLayout(grid_layout)
         
 
     def actionPush(self,item:QTreeWidgetItem,colum:int):

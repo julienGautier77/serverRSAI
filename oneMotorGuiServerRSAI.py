@@ -525,7 +525,8 @@ class ONEMOTORGUI(QWidget) :
         a = a * self.unitChange # value with unit changed
         self.position.setText(str(round(a,2))) 
         self.position.setStyleSheet('font: bold 50pt;color:green')
-        if self.etat != self.etat_old: 
+        if self.etat != self.etat_old:
+            self.etat_old = self.etat 
             if self.etat == 'FDC-':
                 self.enPosition.setText(self.etat)
                 self.enPosition.setStyleSheet('font: bold 15pt;color:red')
