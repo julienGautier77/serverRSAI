@@ -24,7 +24,7 @@ import qdarkstyle
 import pathlib
 import time
 import sys,os
-import moteurRSAISERVER
+import moteurRSAISERVER3
 
 PY = sys.version_info[0]
 if PY<3:
@@ -84,8 +84,8 @@ class TILTMOTORGUI(QWidget) :
         self.version=  __version__
         
         self.MOT = [0,0]
-        self.MOT[0] = moteurRSAISERVER.MOTORRSAI(IPLat,NoMotorLat)
-        self.MOT[1] = moteurRSAISERVER.MOTORRSAI(IPVert,NoMotorVert)
+        self.MOT[0] = moteurRSAISERVER3.MOTORRSAI(IPLat,NoMotorLat)
+        self.MOT[1] = moteurRSAISERVER3.MOTORRSAI(IPVert,NoMotorVert)
         self.stepmotor = [0,0]
         self.butePos = [0,0]
         self.buteNeg = [0,0]

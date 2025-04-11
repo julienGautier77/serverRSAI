@@ -14,7 +14,7 @@ from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout, QPushButton, QGridLayout, 
 from PyQt6.QtWidgets import QComboBox, QLabel
 from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import QRect
-import moteurRSAISERVER
+import moteurRSAISERVER3
 import sys
 import time
 import os
@@ -81,7 +81,7 @@ class ONEMOTORGUI(QWidget) :
         self.iconUpdate = pathlib.Path(self.iconUpdate)
         self.iconUpdate = pathlib.PurePosixPath(self.iconUpdate)
 
-        self.MOT[0] = moteurRSAISERVER.MOTORRSAI(self.IpAdress,self.NoMotor)
+        self.MOT[0] = moteurRSAISERVER3.MOTORRSAI(self.IpAdress,self.NoMotor)
             
         self.scanWidget = SCAN(MOT=self.MOT[0]) # for the scan
         
@@ -178,7 +178,7 @@ class ONEMOTORGUI(QWidget) :
         # start position and state thread
         self.thread.ThreadINIT()
         self.thread.start()
-        time.sleep(0.1)
+        time.sleep(0.01)
         
     def setup(self):
         vbox1 = QVBoxLayout() 
@@ -649,7 +649,8 @@ class ONEMOTORGUI(QWidget) :
             self.scanWidget.close()
             print('close moto widget')
         time.sleep(0.05)
-  
+        self.MOT[0].closeConnexion()
+
 class REF1M(QWidget):
     
     def __init__(self,num=0, parent=None):
@@ -771,7 +772,19 @@ class PositionThread(QtCore.QThread):
 
 if __name__ == '__main__':
     appli = QApplication(sys.argv)
-    mot1 = ONEMOTORGUI(IpAdress="10.0.2.30", NoMotor = 14, showRef=False, unit=1,jogValue=100)
+    mot1 = ONEMOTORGUI(IpAdress="10.0.2.30", NoMotor = 1, showRef=False, unit=1,jogValue=100)
     mot1.show()
     mot1.startThread2()
+    mot2= ONEMOTORGUI(IpAdress="10.0.2.30", NoMotor = 2, showRef=False, unit=1,jogValue=100)
+    mot2.show()
+    mot2.startThread2()
+    mot3 = ONEMOTORGUI(IpAdress="10.0.2.30", NoMotor = 3, showRef=False, unit=1,jogValue=100)
+    mot3.show()
+    mot3.startThread2()
+    mot4 = ONEMOTORGUI(IpAdress="10.0.2.30", NoMotor = 4, showRef=False, unit=1,jogValue=100)
+    mot4.show()
+    mot4.startThread2()
+    mot5 = ONEMOTORGUI(IpAdress="10.0.2.30", NoMotor = 5, showRef=False, unit=1,jogValue=100)
+    mot5.show()
+    mot5.startThread2()
     appli.exec_()

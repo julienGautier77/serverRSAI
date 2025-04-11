@@ -16,7 +16,7 @@ import qdarkstyle
 import pathlib
 import __init__
 import TirGui
-import moteurRSAISERVER
+import moteurRSAISERVER3
 from oneMotorGuiServerRSAI import ONEMOTORGUI
 
 __version__=__init__.__version__
@@ -119,9 +119,9 @@ class THREEMOTORGUI(QWidget) :
         self.tir = TirGui.TIRGUI()
         # self.setWindowOpacity(0.5)
         self.MOT = [0,0,0]
-        self.MOT[0] = moteurRSAISERVER.MOTORRSAI(IPLat,NoMotorLat)
-        self.MOT[1] = moteurRSAISERVER.MOTORRSAI(IPVert,NoMotorVert)
-        self.MOT[2] = moteurRSAISERVER.MOTORRSAI(IPFoc,NoMotorFoc)
+        self.MOT[0] = moteurRSAISERVER3.MOTORRSAI(IPLat,NoMotorLat)
+        self.MOT[1] = moteurRSAISERVER3.MOTORRSAI(IPVert,NoMotorVert)
+        self.MOT[2] = moteurRSAISERVER3.MOTORRSAI(IPFoc,NoMotorFoc)
 
         self.stepmotor = [0,0,0]
         self.butePos = [0,0,0]
