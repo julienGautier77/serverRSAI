@@ -181,9 +181,13 @@ class MAINMOTOR(QWidget):
 
         self.P3Mir_But = QPushButton('P3 Mir')
 
-        self.P1OPA = TILTMOTORGUI('10.0.1.31',1,'10.0.1.31',2,nomWin='P1 Spherique  ',nomTilt='P1 Sphe')
+        self.P1OPA = TILTMOTORGUI('10.0.1.31',1,'10.0.1.31',2,nomWin='P1 OPA ',nomTilt='P1 OPA')
         self.P1OAP_But = QPushButton('P1 OAP')
         self.P1OAP_But.clicked.connect(lambda:self.open_widget(self.P1OPA ))
+        
+        self.jet = THREEMOTORGUI(IPVert='10.0.1.31', NoMotorVert = 13, IPLat='10.0.1.31', NoMotorLat = 11, IPFoc='10.0.1.31', NoMotorFoc=14, nomWin= 'JET rosa')
+        self.jet_But = QPushButton('Jet')
+        self.jet_But.clicked.connect(lambda:self.open_widget(self.jet))
         
         grid_layout.addWidget(self.P1TB_But,0,0)
         grid_layout.addWidget(self.P2TB_But,0,1)
@@ -196,6 +200,7 @@ class MAINMOTOR(QWidget):
 
         grid_layout.addWidget(self.lame_But,2,1)
         grid_layout.addWidget(self.peri_But,2,2)
+        grid_layout.addWidget(self.jet_But,3,0)
         vbox1.addLayout(grid_layout)
         
 
