@@ -151,6 +151,7 @@ class MAINMOTOR(QWidget):
         
         ################################################################################################""
         # Special Button
+        ###############################################################################################
         grid_layout = QGridLayout()
         self.lame = THREEMOTORGUI(IPVert='10.0.1.30', NoMotorVert = 10 , IPLat='10.0.1.30', NoMotorLat = 7, IPFoc='10.0.1.30', NoMotorFoc=8, nomWin= 'Lame rosa')
         self.lame_But = QPushButton('Lame')
@@ -161,15 +162,15 @@ class MAINMOTOR(QWidget):
         self.peri_But = QPushButton('Peri')
         self.peri_But.clicked.connect(lambda:self.open_widget(self.periWidget))
 
-        self.P1TB = TILTMOTORGUI('10.0.1.30',1,'10.0.1.30',2,nomWin='P1 Turning Box ',nomTilt='P1 TB')
+        self.P1TB = TILTMOTORGUI('10.0.1.30',2,'10.0.1.30',1,nomWin='P1 Turning Box ',nomTilt='P1 TB')
         self.P1TB_But = QPushButton('P1 TB')
         self.P1TB_But.clicked.connect(lambda:self.open_widget(self.P1TB))
 
-        self.P2TB = TILTMOTORGUI('10.0.1.30',3,'10.0.1.30',4,nomWin='P2 Turning Box ',nomTilt='P2TB')
+        self.P2TB = TILTMOTORGUI('10.0.1.30',4,'10.0.1.30',3,nomWin='P2 Turning Box ',nomTilt='P2TB')
         self.P2TB_But = QPushButton('P2 TB')
         self.P2TB_But.clicked.connect(lambda:self.open_widget(self.P2TB))
 
-        self.P3TB = TILTMOTORGUI('10.0.1.30',5,'10.0.1.30',6,nomWin='P3 Turning Box ',nomTilt='P3TB')
+        self.P3TB = TILTMOTORGUI('10.0.1.30',6,'10.0.1.30',5,nomWin='P3 Turning Box ',nomTilt='P3TB')
         self.P3TB_But = QPushButton('P3 TB')
         self.P3TB_But.clicked.connect(lambda:self.open_widget(self.P3TB))
 
@@ -181,7 +182,7 @@ class MAINMOTOR(QWidget):
 
         self.P3Mir_But = QPushButton('P3 Mir')
 
-        self.P1OPA = TILTMOTORGUI('10.0.1.31',1,'10.0.1.31',2,nomWin='P1 OPA ',nomTilt='P1 OPA')
+        self.P1OPA = TILTMOTORGUI('10.0.1.31',2,'10.0.1.31',1,nomWin='P1 OPA ',nomTilt='P1 OPA')
         self.P1OAP_But = QPushButton('P1 OAP')
         self.P1OAP_But.clicked.connect(lambda:self.open_widget(self.P1OPA ))
         

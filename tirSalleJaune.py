@@ -41,7 +41,7 @@ def tirConnect():
     #'opens a connection to LabVIEW Server'
     global _sockobj, isConnected
     _sockobj = _socket.socket(_socket.AF_INET, _socket.SOCK_STREAM)      # create socket
-    _sockobj.settimeout(10)
+    _sockobj.settimeout(20)
     isConnected = True
     try :
         a = _sockobj.connect((_serverHost, _serverPort))   # connect to LV
