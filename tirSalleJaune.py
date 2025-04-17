@@ -189,7 +189,7 @@ class SalleJauneConnect(QWidget):
                 print('Connected to Labview')
                 self.widgetLayout.setEnabled(True)
                 self.testConnection.stop = False
-                self.testConnection.start()
+                #self.testConnection.start()
             else:
                 self.connectButton.setStyleSheet("background-color: %s"%rgbcolor_gray)
                 self.connectButton.setText("Click to Connect")
@@ -220,6 +220,7 @@ class SalleJauneConnect(QWidget):
             print("tir :", a)
             if a == True:
                 self.isConnected  = True
+            else: 
                 a = "probleme tir"
                 print("Probleme tir")
 
