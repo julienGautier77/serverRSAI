@@ -58,6 +58,7 @@ class ONEMOTORGUI(QWidget) :
         self.etat_old = 'ok'
         self.IpAdress = IpAdress
         self.NoMotor = NoMotor
+        self.Posi =[0,self.etat]
         self.MOT = [0]
         self.setStyleSheet(qdarkstyle.load_stylesheet(qt_api='pyqt6'))
         self.setWindowIcon(QIcon(self.icon+'LOA.png'))
@@ -505,7 +506,8 @@ class ONEMOTORGUI(QWidget) :
             absButton.setValue(float(self.refValueStep[eee]*self.unitChange))
             absButton.setSuffix(" %s" % self.unitName)
             eee+=1
-        
+        self.Position(self.Posi)
+
     def StopMot(self):
         '''
         stop all motors
@@ -518,11 +520,13 @@ class ONEMOTORGUI(QWidget) :
         ''' 
         Position  display read from the second thread
         '''
+        self.Posi = Posi
         Pos = Posi[0]
         self.etat = str(Posi[1])
         a = float(Pos)
         b = a # value in step
         a = a * self.unitChange # value with unit changed
+        
         self.position.setText(str(round(a,2))) 
         self.position.setStyleSheet('font: bold 50pt;color:green')
         if self.etat != self.etat_old:
@@ -546,8 +550,6 @@ class ONEMOTORGUI(QWidget) :
                 self.enPosition.setText('equip Not connected')
                 self.enPosition.setStyleSheet('font: bold 8pt;color:red')
     
-        
-        
         positionConnue = 0 # 
         precis = 5 # to show position name
         if (self.etat == 'ok' or self.etat == '?'):
@@ -772,19 +774,19 @@ class PositionThread(QtCore.QThread):
 
 if __name__ == '__main__':
     appli = QApplication(sys.argv)
-    mot1 = ONEMOTORGUI(IpAdress="10.0.2.30", NoMotor = 1, showRef=False, unit=1,jogValue=100)
+    mot1 = ONEMOTORGUI(IpAdress="10.0.1.31", NoMotor = 11, showRef=False, unit=1,jogValue=100)
     mot1.show()
     mot1.startThread2()
-    mot2= ONEMOTORGUI(IpAdress="10.0.2.30", NoMotor = 2, showRef=False, unit=1,jogValue=100)
-    mot2.show()
-    mot2.startThread2()
-    mot3 = ONEMOTORGUI(IpAdress="10.0.2.30", NoMotor = 3, showRef=False, unit=1,jogValue=100)
-    mot3.show()
-    mot3.startThread2()
-    mot4 = ONEMOTORGUI(IpAdress="10.0.2.30", NoMotor = 4, showRef=False, unit=1,jogValue=100)
-    mot4.show()
-    mot4.startThread2()
-    mot5 = ONEMOTORGUI(IpAdress="10.0.2.30", NoMotor = 5, showRef=False, unit=1,jogValue=100)
-    mot5.show()
-    mot5.startThread2()
+    # mot2= ONEMOTORGUI(IpAdress="10.0.2.30", NoMotor = 2, showRef=False, unit=1,jogValue=100)
+    # mot2.show()
+    # mot2.startThread2()
+    # mot3 = ONEMOTORGUI(IpAdress="10.0.2.30", NoMotor = 3, showRef=False, unit=1,jogValue=100)
+    # mot3.show()
+    # mot3.startThread2()
+    # mot4 = ONEMOTORGUI(IpAdress="10.0.2.30", NoMotor = 4, showRef=False, unit=1,jogValue=100)
+    # mot4.show()
+    # mot4.startThread2()
+    # mot5 = ONEMOTORGUI(IpAdress="10.0.2.30", NoMotor = 5, showRef=False, unit=1,jogValue=100)
+    # mot5.show()
+    # mot5.startThread2()
     appli.exec_()

@@ -292,7 +292,7 @@ class MAINMOTOR(QWidget):
     
 if __name__ == '__main__':
     appli = QApplication(sys.argv)
-    
+    appli.setStyleSheet(qdarkstyle.load_stylesheet(qt_api='pyqt6'))
     s = MAINMOTOR(chamber ='rosa')
     s.show()
     appli.exec_()
