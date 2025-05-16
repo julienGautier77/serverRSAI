@@ -130,12 +130,12 @@ class THREEMOTORGUI(QWidget) :
         
         for zzi in range(0,3):
             self.stepmotor[zzi] = float((1/self.MOT[zzi].getStepValue())) # list of stepmotor values for unit conversion
-            self.butePos[zzi] = float(1/self.MOT[zzi].getButLogPlusValue()) # list 
+            self.butePos[zzi] = float(self.MOT[zzi].getButLogPlusValue()) # list 
             self.buteNeg[zzi] = float(self.MOT[zzi].getButLogMoinsValue())
             self.name[zzi] = str(self.MOT[0].getName())
         
         self.setWindowTitle(nomWin+'                     V.'+str(self.version))#+' : '+ self.name[0])
-        
+        print('bur +',self.butePos,self.buteNeg)
         self.threadLat = PositionThread(self,mot=self.MOT[0]) # thread for displaying position Lat
         self.threadLat.POS.connect(self.PositionLat)
         time.sleep(0.5)
@@ -624,7 +624,7 @@ class THREEMOTORGUI(QWidget) :
         a = float(self.jogStep_2.value())
         a = float(a/self.unitChangeFoc)
         b = self.MOT[2].position()
-    
+
         if b+a > self.butePos[2] :
             print( "STOP : Positive switch")
             self.MOT[2].stopMotor()
@@ -1208,7 +1208,7 @@ class PositionThread(QtCore.QThread):
 if __name__ =='__main__':
    
     appli = QApplication(sys.argv)
-    mot = THREEMOTORGUI(IPLat="10.0.1.31", NoMotorLat=8,IPVert="10.0.3.31", NoMotorVert=6,IPFoc="10.0.1.31", NoMotorFoc=10,nomWin='Camera Tache Focale',nomTilt='Focal Spot',nomFoc='Cam Foc')
+    mot = THREEMOTORGUI(IPVert='10.0.1.31', NoMotorVert = 13, IPLat='10.0.1.31', NoMotorLat = 11, IPFoc='10.0.1.31', NoMotorFoc=14, nomWin= 'JET rosa')
     mot.show()
     mot.startThread2()
     appli.exec_()
