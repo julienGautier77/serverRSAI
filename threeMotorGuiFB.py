@@ -135,13 +135,13 @@ class THREEMOTORGUI(QWidget) :
             self.name[zzi] = str(self.MOT[0].getName())
         
         self.setWindowTitle(nomWin+'                     V.'+str(self.version))#+' : '+ self.name[0])
-        print('bur +',self.butePos,self.buteNeg)
+       
         self.threadLat = PositionThread(self,mot=self.MOT[0]) # thread for displaying position Lat
         self.threadLat.POS.connect(self.PositionLat)
-        time.sleep(0.5)
+        time.sleep(0.121)
         self.threadVert=PositionThread(self,mot=self.MOT[1]) # thread for displaying  position Vert
         self.threadVert.POS.connect(self.PositionVert)
-        time.sleep(0.25)
+        time.sleep(0.153)
         self.threadFoc = PositionThread(self,mot=self.MOT[2]) # thread for displaying  position Foc
         self.threadFoc.POS.connect(self.PositionFoc)
         

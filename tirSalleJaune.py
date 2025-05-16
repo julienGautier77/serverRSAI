@@ -131,7 +131,7 @@ class SalleJauneConnect(QWidget):
         self.connectButton = QPushButton('Click to connect')                       
         self.connectButton.clicked.connect(self.connect)
         
-        lab_IP = QLabel("Laser server : %s : %i" % (_serverHost, _serverPort) )
+        lab_IP = QLabel("Laser Server  :  %s  :  %i " % (_serverHost, _serverPort) )
         lab_IP.setAlignment(Qt.AlignmentFlag.AlignCenter)
         hlayout = QHBoxLayout()
         hlayout.addWidget(self.connectButton)

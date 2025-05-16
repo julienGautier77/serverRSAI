@@ -153,14 +153,14 @@ class MAINMOTOR(QWidget):
         # Special Button
         ###############################################################################################
         grid_layout = QGridLayout()
-        self.lame = THREEMOTORGUI(IPVert='10.0.1.30', NoMotorVert = 10 , IPLat='10.0.1.30', NoMotorLat = 7, IPFoc='10.0.1.30', NoMotorFoc=8, nomWin= 'Lame rosa')
-        self.lame_But = QPushButton('Lame')
         
-        self.lame_But.clicked.connect(lambda:self.open_widget(self.lame))
+        # self.lame = THREEMOTORGUI(IPVert='10.0.1.30', NoMotorVert = 10 , IPLat='10.0.1.30', NoMotorLat = 7, IPFoc='10.0.1.30', NoMotorFoc=8, nomWin= 'Lame rosa')
+        # self.lame_But = QPushButton('Lame')
+        # self.lame_But.clicked.connect(lambda:self.open_widget(self.lame))
 
-        self.periWidget = THREEMOTORGUI(IPVert='10.0.1.30', NoMotorVert = 12 , IPLat='10.0.1.30', NoMotorLat = 13,IPFoc='10.0.1.30', NoMotorFoc=14, nomWin= 'Periscope')
-        self.peri_But = QPushButton('Peri')
-        self.peri_But.clicked.connect(lambda:self.open_widget(self.periWidget))
+        self.camWidget = THREEMOTORGUI(IPVert='10.0.1.31', NoMotorVert = 12 , IPLat='10.0.1.31', NoMotorLat = 8,IPFoc='10.0.1.31', NoMotorFoc=10, nomWin= 'Cam Focal Spot')
+        self.cam_But = QPushButton('CAM')
+        self.cam_But.clicked.connect(lambda:self.open_widget(self.camWidget))
 
         self.P1TB = TILTMOTORGUI('10.0.1.30',2,'10.0.1.30',1,nomWin='P1 Turning Box ',nomTilt='P1 TB')
         self.P1TB_But = QPushButton('P1 TB')
@@ -198,10 +198,10 @@ class MAINMOTOR(QWidget):
         grid_layout.addWidget(self.P3Mir_But,1,2)
         
         grid_layout.addWidget(self.P1OAP_But ,2,0)
-
-        grid_layout.addWidget(self.lame_But,2,1)
-        grid_layout.addWidget(self.peri_But,2,2)
-        grid_layout.addWidget(self.jet_But,3,0)
+        grid_layout.addWidget(self.jet_But,2,1)
+        # grid_layout.addWidget(self.lame_But,3,0)
+        grid_layout.addWidget(self.cam_But,2,2)
+        
         vbox1.addLayout(grid_layout)
         
 

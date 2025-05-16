@@ -117,7 +117,7 @@ class MAINMOTOR(QWidget):
 
         vbox1.addWidget(self.widdgetTir)
         chamberName = QLabel()
-        chamberName.setText('Motors Control: %s' % self.chamber)
+        chamberName.setText('Motors Control : %s' % self.chamber)
         chamberName.setAlignment(Qt.AlignmentFlag.AlignCenter)
         vbox1.addWidget(chamberName)
         self.tree = QTreeWidget()
