@@ -182,6 +182,7 @@ class ONEMOTORGUI(QWidget) :
         time.sleep(0.01)
         
     def setup(self):
+        
         vbox1 = QVBoxLayout() 
         hboxTitre = QHBoxLayout()
         self.nom = QLabel(self.name[0])

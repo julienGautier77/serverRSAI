@@ -38,7 +38,7 @@ class MotCamRosa(QWidget):
         hbox0=QHBoxLayout()
         hbox0.addWidget(label)
         hbox0.addWidget(self.positionFS)
-        self.positionFS.setSuffix('mm')
+        self.positionFS.setSuffix('um')
         vbox1.addLayout(hbox0)
         hbox1 =QHBoxLayout()
         hbox1.addWidget(self.butRef0)
