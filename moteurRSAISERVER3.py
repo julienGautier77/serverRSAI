@@ -113,7 +113,7 @@ class MOTORRSAI():
         for i in range (0,6):
             if self.step == 0:
                 self.step = 1
-            rr = self.getRefValue(i)/self.step
+            rr = self.getRefValue(i)#/self.step
             self.refValue.append(rr)
             # time.sleep(0.01)
         

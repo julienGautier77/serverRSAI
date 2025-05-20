@@ -122,6 +122,15 @@ class MAINMOTOR(QWidget):
         chamberName.setText('Motors Control: %s' % self.chamber)
         chamberName.setAlignment(Qt.AlignmentFlag.AlignCenter)
         vbox1.addWidget(chamberName)
+        self.butWarning=QLabel('Focal Spot Miror')
+        self.butWarning.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.anim = QtCore.QPropertyAnimation(self.butWarning, b"size",self)
+        self.anim.setStartValue(QtCore.QSize(20, 25))
+        self.anim.setEndValue(QtCore.QSize(350, 25))
+        self.anim.setDuration(5000)
+        self.anim.setLoopCount(-1)
+        vbox1.addWidget(self.butWarning)
+        
         self.tree = QTreeWidget()
         self.tree.header().hide()
         z = 0
@@ -202,8 +211,41 @@ class MAINMOTOR(QWidget):
         # grid_layout.addWidget(self.lame_But,3,0)
         grid_layout.addWidget(self.cam_But,2,2)
         
+        ## Focal Spot 
+        self.motFS = ONEMOTORGUI(IpAdress="10.0.1.31", NoMotor = 5, showRef=False, unit=1,jogValue=100)
+        self.thread = PositionThread(self,mot=self.motFS.MOT[0]) # thread for displaying position
+        self.thread.POS.connect(self.Position)
+        self.thread.ThreadINIT()
+        self.thread.start()
+        self.ref0 = self.motFS.refValueStep[0]
+        self.ref1 = self.motFS.refValueStep[1]
+
         vbox1.addLayout(grid_layout)
         
+    def Position(self,Posi):
+        ''' 
+        Position  display read from the second thread
+        '''
+        self.Posi = Posi
+        Pos = Posi[0]
+        self.etat = str(Posi[1])
+        a = float(Pos)* float((self.motFS.stepmotor[0]))
+        print(a,self.ref1)
+        if self.ref0 - 100 < a < self.ref0 + 100 :
+            self.butWarning.setStyleSheet("background-color:red")
+            self.butWarning.setText('Focal Spot Miror : IN')
+            
+            self.anim.start()
+           
+
+        elif self.ref1 - 100 < a < self.ref1 + 100 :
+            self.butWarning.setStyleSheet("background-color:green")
+            self.butWarning.setText('Focal Spot Miror : OUT')
+            self.anim.stop()
+        else :
+            self.butWarning.setStyleSheet("background-color: transparent ")
+            self.butWarning.setText('Focal Spot Miror : ?')
+            self.anim.stop()
 
     def actionPush(self,item:QTreeWidgetItem,colum:int):
         
@@ -289,7 +331,53 @@ class MAINMOTOR(QWidget):
         time.sleep(0.1)
         event.accept()
         
-    
+
+
+class PositionThread(QtCore.QThread):
+    '''
+    Second thread  to display the position
+    '''
+    import time 
+    POS = QtCore.pyqtSignal(object) # signal of the second thread to main thread  to display motors position
+    ETAT = QtCore.pyqtSignal(str)
+
+    def __init__(self,parent=None,mot='',):
+        super(PositionThread,self).__init__(parent)
+        self.MOT = mot
+        self.parent = parent
+        self.stop = False
+        self.positionSleep = 1
+        self.etat_old = ""
+        self.Posi_old = 0
+
+    def run(self):
+        while True:
+            if self.stop is True:
+                break
+            else:
+                
+                Posi = (self.MOT.position())
+                time.sleep(self.positionSleep)
+                etat = self.MOT.etatMotor()
+                try :
+                    # print(etat)
+                    #time.sleep(0.1)
+                    if self.Posi_old != Posi or self.etat_old != etat: # on emet que si different
+                        self.POS.emit([Posi,etat])
+                        self.Posi_old = Posi
+                        self.etat_old = etat
+                    
+                except:
+                    print('error emit')
+                  
+    def ThreadINIT(self):
+        self.stop = False   
+                        
+    def stopThread(self):
+        self.stop = True
+        time.sleep(0.1)
+
+
 if __name__ == '__main__':
     appli = QApplication(sys.argv)
     appli.setStyleSheet(qdarkstyle.load_stylesheet(qt_api='pyqt6'))

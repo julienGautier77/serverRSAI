@@ -186,14 +186,14 @@ class THREEMOTORGUI(QWidget) :
             self.unitChangeVert = 1 #if / 0
         
         self.setup()
-        self.update()
+        self.updateFromRSAI()
         self.unitFoc()
         self.unitTrans()
         self.jogStep.setValue(self.jogValue)
         self.jogStep_2.setValue(self.jogValueFoc)
         self.actionButton()
 
-    def update(self):    
+    def updateFromRSAI(self):    
         # update from DB
         # to avoid to access to the database 
         for zzi in range(0,2):
@@ -211,24 +211,26 @@ class THREEMOTORGUI(QWidget) :
         self.refValueLatStep=[] # en step 
         for ref in self.refValueLat:
             self.refValueLatStep.append(ref /self.stepmotor[0])
+        self.refValueLatStepOld = self.refValueLatStep.copy()
         self.refNameLat = self.MOT[0].refName
         self.refValueVert = self.MOT[1].refValue
         self.refValueVertStep=[] # en step 
         for ref in self.refValueVert:
             self.refValueVertStep.append(ref /self.stepmotor[1])
+        self.refValueVertStepOld = self.refValueVertStep.copy()        
         self.refNameVert = self.MOT[1].refName
         self.refValueFoc = self.MOT[2].refValue
         self.refValueFocStep=[] # en step 
         for ref in self.refValueFoc:
             self.refValueFocStep.append(ref /self.stepmotor[2])
+        self.refValueFocStepOld = self.refValueFocStep.copy()
+
         self.refNameFoc = self.MOT[0].refName
         
-        self.refValueLatStepOld = self.refValueLatStep
-        self.refValueVertStepOld = self.refValueVertStep
-        self.refValueFocStepOld = self.refValueFocStep
-        self.refNameLatOld = self.refNameLat
-        self.refNameVertOld = self.refNameVert
-        self.refNameFocOld = self.refNameFoc
+        
+        self.refNameLatOld = self.refNameLat.copy()
+        self.refNameVertOld = self.refNameVert.copy()
+        self.refNameFocOld = self.refNameFoc.copy()
 
         # update ref Name (ref name = ref La) and position ref value
         iii = 0
@@ -251,27 +253,39 @@ class THREEMOTORGUI(QWidget) :
     def updateDB(self):
         #  update ref name and ref position to the Data base
         i = 0
-        if (self.refNameLat != self.refNameLat):
+        if (self.refNameLatOld != self.refNameLat):
             for ref in self.refNameLat : 
                 self.MOT[0].setRefName(i,ref)
                 i+=1
-        if (self.refNameVert != self.refNameVert):
+        i=0
+        if (self.refNameVertOld != self.refNameVert):
             for ref in self.refNameVert : 
                 self.MOT[1].setRefName(i,ref)
                 i+=1
-        if (self.refNameFoc != self.refNameFoc):
+        i=0
+        if (self.refNameFocOld != self.refNameFoc):
             for ref in self.refNameFoc : 
                 self.MOT[2].setRefName(i,ref)
                 i+=1
+        i=0
+        print('update',self.refValueLatStep,self.refValueLatStepOld)      
         if self.refValueLatStep != self.refValueLatStepOld :
             for ref in self.refValueLatStep : 
-                self.MOT[0].setRefValue(i,ref*self.stepmotor[0])
+                ref = ref * float((self.stepmotor[0])) # en micron
+                a = self.MOT[0].setRefValue(i,int(ref))
+                i+=1
+        i=0
         if self.refValueVertStep != self.refValueVertStepOld :  
             for ref in self.refValueVertStep : 
-                self.MOT[1].setRefValue(i,ref*self.stepmotor[1])
+                ref = ref * float((self.stepmotor[1])) # en micron
+                a = self.MOT[1].setRefValue(i,int(ref))
+                i+=1
+        i=0
         if self.refValueFocStep != self.refValueFocStepOld :
             for ref in self.refValueFocStep : 
-                self.MOT[2].setRefValue(i,ref*self.stepmotor[2])
+                ref = ref * float((self.stepmotor[20])) # en micron
+                a = self.MOT[2].setRefValue(i,int(ref))
+                i+=1
 
     def startThread2(self):
         self.threadVert.ThreadINIT()
@@ -1033,8 +1047,9 @@ class THREEMOTORGUI(QWidget) :
         nbRefLat = sender.objectName()[0] # nom du button ABSref1
         #print('nbref=',nbRefLat)
         vrefLat = int(self.absLatRef[int(nbRefLat)-1].value())
-        self.refValueLatStep[int(nbRefLat)-1] = vrefLat # on sauvegarde en step dans la base donnee 
-        print(self.refValueLat)
+        print('uuu',vrefLat,vrefLat/self.unitChangeLat)
+        self.refValueLatStep[int(nbRefLat)-1] = vrefLat/self.unitChangeLat # on sauvegarde en step dans la base donnee 
+        print('laa',self.refValueLatStep)
         
     def savRefVert (self) : 
         '''
@@ -1043,7 +1058,7 @@ class THREEMOTORGUI(QWidget) :
         sender = QtCore.QObject.sender(self)
         nbRefVert = sender.objectName()[0] 
         vrefVert = int(self.absVertRef[int(nbRefVert)-1].value())
-        self.refValueVertStep[int(nbRefVert)-1 ] = vrefVert # on sauvegarde en step dans la base donnee 
+        self.refValueVertStep[int(nbRefVert)-1 ] = vrefVert/self.unitChangeVert # on sauvegarde en step dans la base donnee 
        
     def savRefFoc (self) :
         '''
@@ -1052,7 +1067,7 @@ class THREEMOTORGUI(QWidget) :
         sender = QtCore.QObject.sender(self)
         nbRefFoc = sender.objectName()[0] 
         vrefFoc = int(self.absFocRef[int(nbRefFoc)-1].value())
-        self.refValueFocStep[int(nbRefFoc)-1] = vrefFoc # on sauvegarde en step dans la base donnee 
+        self.refValueFocStep[int(nbRefFoc)-1] = vrefFoc/self.unitChangeFoc # on sauvegarde en step dans la base donnee 
         
 
     def ShootAct(self):

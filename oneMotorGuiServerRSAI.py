@@ -120,13 +120,13 @@ class ONEMOTORGUI(QWidget) :
         #self.thread.ETAT.connect(self.Etat)
         
         self.setup()
-        self.update()
+        self.updateFromRSAI()
         self.unit()
         self.jogStep.setValue(self.jogValue)
         self.actionButton()
         
         
-    def update(self):
+    def updateFromRSAI(self):
         # update from the server RSAI python 
         self.MOT[0].update()
         # to avoid to access to the database 
@@ -141,15 +141,16 @@ class ONEMOTORGUI(QWidget) :
         
         self.nom.setText(self.name[0])
         self.refValue = self.MOT[0].refValue     # en micron
+        
         self.refValueStep=[] # en step 
         for ref in self.refValue:
 
             self.refValueStep.append(ref /self.stepmotor[0]  )
 
-        self.refValueStepOld = self.refValueStep
-        #print('ref debut init step ',self.refValueStep )
+        self.refValueStepOld = self.refValueStep.copy()
+        
         self.refName = self.MOT[0].refName
-        self.refNameOld= self.refName 
+        self.refNameOld= self.refName.copy() 
         iii=0
         for saveNameButton in self.posText: # reference name
             saveNameButton.setText(self.refName[iii]) # print  ref name
@@ -161,6 +162,7 @@ class ONEMOTORGUI(QWidget) :
 
     def updateDB(self):
         #  update the Data base 
+        #print('al',self.refValueStep,self.refValueStepOld)
         i = 0
         if self.refValueStep != self.refValueStepOld :
             print('update ref values')
@@ -619,12 +621,17 @@ class ONEMOTORGUI(QWidget) :
         '''
         save reference  value
         '''
+       #print('ii deb ',self.refValueStep,self.refValueStepOld)
         sender = QtCore.QObject.sender(self)
         nbRef = sender.objectName()[0] # nom du button ABSref1
-        
+        print('save ref')
         vref = int(self.absRef[int(nbRef)-1].value())
-        self.refValueStep[int(nbRef)-1] = vref  # on sauvegarde en step 
-
+        #print('iifff',self.refValueStep,self.refValueStepOld)
+        self.refValueStep[int(nbRef)-1] = vref/self.unitChange  # on sauvegarde en step 
+        #print('ii',self.refValueStep)
+        #print(self.refValueStepOld)
+    
+    
     def preset(self):
         val , ok = QInputDialog.getDouble(self, 'Set Potion value','Position value to set(%s) ' %self.unitName )
         if ok:
@@ -637,7 +644,7 @@ class ONEMOTORGUI(QWidget) :
         When closing the window
         """
         self.fini()
-        time.sleep(0.01)
+        time.sleep(1)
         event.accept()
         
     def fini(self): 
@@ -775,7 +782,7 @@ class PositionThread(QtCore.QThread):
 
 if __name__ == '__main__':
     appli = QApplication(sys.argv)
-    mot1 = ONEMOTORGUI(IpAdress="10.0.1.31", NoMotor = 11, showRef=False, unit=1,jogValue=100)
+    mot1 = ONEMOTORGUI(IpAdress="10.0.1.31", NoMotor = 5, showRef=False, unit=1,jogValue=100)
     mot1.show()
     mot1.startThread2()
     # mot2= ONEMOTORGUI(IpAdress="10.0.2.30", NoMotor = 2, showRef=False, unit=1,jogValue=100)
