@@ -119,7 +119,7 @@ class MOTORRSAI():
         
 
     def sendMessage(self,message=''):
-        # print('message',self.isconnected)
+        #print('message',self.isconnected)
         retour = '1'
         if self.isconnected is True:
             self.mut.lock()
@@ -292,6 +292,7 @@ class MOTORRSAI():
         pos = int(posrelatif)
         cmdsend = "%s, %s, %s,%s" %(self.IpAdress,self.NoMotor,cmd,pos)
         self.sendMessage(cmdsend)
+       # print(cmdsend)
         # rec = self.sendMessage(cmdsend)
         # if rec != 'ok':
         #     print('error cmd')

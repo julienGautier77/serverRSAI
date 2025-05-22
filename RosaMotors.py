@@ -179,7 +179,7 @@ class MAINMOTOR(QWidget):
         self.P2TB_But = QPushButton('P2 TB')
         self.P2TB_But.clicked.connect(lambda:self.open_widget(self.P2TB))
 
-        self.P3TB = TILTMOTORGUI('10.0.1.30',6,'10.0.1.30',5,nomWin='P3 Turning Box ',nomTilt='P3TB')
+        self.P3TB = TILTMOTORGUI(IPLat='10.0.1.30',NoMotorLat=6,IPVert='10.0.1.30',NoMotorVert=5,nomWin='P3 Turning Box ',nomTilt='P3TB')
         self.P3TB_But = QPushButton('P3 TB')
         self.P3TB_But.clicked.connect(lambda:self.open_widget(self.P3TB))
 

@@ -33,8 +33,7 @@ class TIRGUI(QWidget) :
         self.setup()
         self.actionButton()
         self.setWindowFlags(QtCore.Qt.WindowType.WindowStaysOnTopHint)
-        
-
+     
     def setup(self):
         
         vbox1=QVBoxLayout()
