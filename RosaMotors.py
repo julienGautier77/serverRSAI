@@ -199,6 +199,11 @@ class MAINMOTOR(QWidget):
         self.jet_But = QPushButton('Jet')
         self.jet_But.clicked.connect(lambda:self.open_widget(self.jet))
         
+        self.lame = THREEMOTORGUI(IPVert='10.0.3.31', NoMotorVert = 1, IPLat='10.0.3.31', NoMotorLat = 3, IPFoc='10.0.3.31', NoMotorFoc=2, nomWin= 'Lame rosa')
+        self.lame_But = QPushButton('Lame')
+        self.lame_But.clicked.connect(lambda:self.open_widget(self.lame))
+
+
         grid_layout.addWidget(self.P1TB_But,0,0)
         grid_layout.addWidget(self.P2TB_But,0,1)
         grid_layout.addWidget(self.P3TB_But,0,2)
@@ -208,9 +213,8 @@ class MAINMOTOR(QWidget):
         
         grid_layout.addWidget(self.P1OAP_But ,2,0)
         grid_layout.addWidget(self.jet_But,2,1)
-        # grid_layout.addWidget(self.lame_But,3,0)
         grid_layout.addWidget(self.cam_But,2,2)
-        
+        grid_layout.addWidget(self.lame_But,3,0)
         ## Focal Spot 
         self.motFS = ONEMOTORGUI(IpAdress="10.0.1.31", NoMotor = 5, showRef=False, unit=1,jogValue=100)
         self.thread = PositionThread(self,mot=self.motFS.MOT[0]) # thread for displaying position
@@ -230,7 +234,7 @@ class MAINMOTOR(QWidget):
         Pos = Posi[0]
         self.etat = str(Posi[1])
         a = float(Pos)* float((self.motFS.stepmotor[0]))
-        print(a,self.ref1)
+        #print(a,self.ref1)
         if self.ref0 - 100 < a < self.ref0 + 100 :
             self.butWarning.setStyleSheet("background-color:red")
             self.butWarning.setText('Focal Spot Miror : IN')

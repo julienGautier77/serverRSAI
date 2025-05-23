@@ -782,7 +782,7 @@ class PositionThread(QtCore.QThread):
 
 if __name__ == '__main__':
     appli = QApplication(sys.argv)
-    mot1 = ONEMOTORGUI(IpAdress="10.0.1.30", NoMotor = 5, showRef=False, unit=1,jogValue=100)
+    mot1 = ONEMOTORGUI(IpAdress="10.0.1.30", NoMotor = 6, showRef=False, unit=1,jogValue=100)
     mot1.show()
     mot1.startThread2()
     # mot2= ONEMOTORGUI(IpAdress="10.0.2.30", NoMotor = 2, showRef=False, unit=1,jogValue=100)
