@@ -234,15 +234,15 @@ class MAINMOTOR(QWidget):
         Pos = Posi[0]
         self.etat = str(Posi[1])
         a = float(Pos)* float((self.motFS.stepmotor[0]))
-        #print(a,self.ref1)
-        if self.ref0 - 100 < a < self.ref0 + 100 :
+        print(a,Pos,self.ref1)
+        if self.ref0 - 100 < Pos < self.ref0 + 100 :
             self.butWarning.setStyleSheet("background-color:red")
             self.butWarning.setText('Focal Spot Miror : IN')
             
             self.anim.start()
            
 
-        elif self.ref1 - 100 < a < self.ref1 + 100 :
+        elif self.ref1 - 100 < Pos < self.ref1 + 100 :
             self.butWarning.setStyleSheet("background-color:green")
             self.butWarning.setText('Focal Spot Miror : OUT')
             self.anim.stop()
