@@ -1,6 +1,6 @@
 #!/home/sallejaune/loaenv/bin/env python
 # -*- coding: utf-8 -*-
-#last modified 18 oct 2024
+#last modified 27/05/25
 
 from PyQt6.QtWidgets import QApplication
 from PyQt6.QtWidgets import QWidget
@@ -8,6 +8,7 @@ from PyQt6.QtWidgets import QVBoxLayout,QHBoxLayout,QPushButton,QGridLayout,QTre
 from PyQt6.QtWidgets import QLabel,QSizePolicy,QTreeWidgetItemIterator
 from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import Qt
+from PyQt6.QtCore import pyqtSlot
 import qdarkstyle,sys
 import ast
 import socket as _socket
@@ -19,7 +20,6 @@ from threeMotorGuiFB import THREEMOTORGUI
 from TiltGui import TILTMOTORGUI
 from PyQt6 import QtCore
 import tirSalleJaune as tirSJ
-from AdrienCible import WidgetCible
 
 class MAINMOTOR(QWidget):
     """  widget tree with IP adress and motor
@@ -188,9 +188,11 @@ class MAINMOTOR(QWidget):
         self.P1Mir_But.clicked.connect(lambda:self.open_widget(self.P1M))
         
         self.P2Mir_But = QPushButton('P2 Mir')
-
+        self.P2Mir_But.setEnabled(True)
+        
         self.P3Mir_But = QPushButton('P3 Mir')
-
+        self.P3Mir_But.setEnabled(True)
+        
         self.P1OPA = TILTMOTORGUI('10.0.1.31',2,'10.0.1.31',1,nomWin='P1 OPA ',nomTilt='P1 OPA')
         self.P1OAP_But = QPushButton('P1 OAP')
         self.P1OAP_But.clicked.connect(lambda:self.open_widget(self.P1OPA ))
@@ -203,6 +205,9 @@ class MAINMOTOR(QWidget):
         self.lame_But = QPushButton('Lame')
         self.lame_But.clicked.connect(lambda:self.open_widget(self.lame))
 
+        self.compton = THREEMOTORGUI(IPVert='10.0.1.30', NoMotorVert = 12, IPLat='10.0.1.30', NoMotorLat = 13, IPFoc='10.0.1.30', NoMotorFoc=14, nomWin= 'Compton')
+        self.compton_But = QPushButton('Compton')
+        self.compton_But.clicked.connect(lambda:self.open_widget(self.compton ))
 
         grid_layout.addWidget(self.P1TB_But,0,0)
         grid_layout.addWidget(self.P2TB_But,0,1)
@@ -210,11 +215,12 @@ class MAINMOTOR(QWidget):
         grid_layout.addWidget(self.P1Mir_But,1,0)
         grid_layout.addWidget(self.P2Mir_But,1,1)
         grid_layout.addWidget(self.P3Mir_But,1,2)
-        
         grid_layout.addWidget(self.P1OAP_But ,2,0)
         grid_layout.addWidget(self.jet_But,2,1)
         grid_layout.addWidget(self.cam_But,2,2)
         grid_layout.addWidget(self.lame_But,3,0)
+        grid_layout.addWidget(self.compton_But,3,1)
+
         ## Focal Spot 
         self.motFS = ONEMOTORGUI(IpAdress="10.0.1.31", NoMotor = 5, showRef=False, unit=1,jogValue=100)
         self.thread = PositionThread(self,mot=self.motFS.MOT[0]) # thread for displaying position
@@ -225,7 +231,8 @@ class MAINMOTOR(QWidget):
         self.ref1 = self.motFS.refValueStep[1]
 
         vbox1.addLayout(grid_layout)
-        
+
+    @pyqtSlot(object)   
     def Position(self,Posi):
         ''' 
         Position  display read from the second thread

@@ -20,6 +20,7 @@ from PyQt6.QtWidgets import QWidget
 from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import QVBoxLayout,QHBoxLayout,QPushButton,QGridLayout,QDoubleSpinBox
 from PyQt6.QtWidgets import QComboBox,QLabel,QToolButton
+from PyQt6.QtCore import pyqtSlot
 import qdarkstyle
 import pathlib
 import time
@@ -208,23 +209,37 @@ class TILTMOTORGUI(QWidget) :
         
         vbox1.addLayout(hbox1)
         
-        posLAT = QLabel('Lateral:')
+        posLAT = QLabel('Lateral :')
         posLAT.setMaximumHeight(20)
         posVERT = QLabel('Vertical :')
         posVERT.setMaximumHeight(20)
-        hbox2 = QHBoxLayout()
-        hbox2.addWidget(posLAT)
-        hbox2.addWidget(posVERT)
-        vbox1.addLayout(hbox2)
+
+        hbox2a = QHBoxLayout()
+        hbox2a.setAlignment(QtCore.Qt.AlignmentFlag.AlignHCenter | QtCore.Qt.AlignmentFlag.AlignVCenter)
+        hbox2a.addWidget(posLAT)
+        hbox2b = QHBoxLayout()
+        hbox2b.setAlignment(QtCore.Qt.AlignmentFlag.AlignHCenter | QtCore.Qt.AlignmentFlag.AlignVCenter)
+        
+        hbox2b.addWidget(posVERT)
+        hbox2c = QHBoxLayout()
+        hbox2c.addLayout(hbox2a)
+        hbox2c.addLayout(hbox2b)
+        vbox1.addLayout(hbox2c)
         
         self.position_Lat = QLabel('pos')
         self.position_Lat.setMaximumHeight(20)
         self.position_Vert = QLabel('pos')
         self.position_Vert.setMaximumHeight(20)
-        hbox3=QHBoxLayout()
-        hbox3.addWidget(self.position_Lat)
-        hbox3.addWidget(self.position_Vert)
-        vbox1.addLayout(hbox3)
+        hbox3a = QHBoxLayout()
+        hbox3a.addWidget(self.position_Lat)
+        hbox3a.setAlignment(QtCore.Qt.AlignmentFlag.AlignHCenter | QtCore.Qt.AlignmentFlag.AlignVCenter)
+        hbox3b = QHBoxLayout()
+        hbox3b.addWidget(self.position_Vert)
+        hbox3b.setAlignment(QtCore.Qt.AlignmentFlag.AlignHCenter | QtCore.Qt.AlignmentFlag.AlignVCenter)
+        hbox3c = QHBoxLayout()
+        hbox3c.addLayout(hbox3a)
+        hbox3c.addLayout(hbox3b)
+        vbox1.addLayout(hbox3c)
         
         hbox4 = QHBoxLayout()
         self.zeroButtonLat = QPushButton('Zero Lat')
@@ -271,13 +286,7 @@ class TILTMOTORGUI(QWidget) :
 
         self.stopButton.clicked.connect(self.StopMot)# arret moteur
     
-    def closeEvent(self, event):
-        """ 
-        When closing the window
-        """
-        self.fini()
-        time.sleep(0.1)
-        event.accept() 
+
 
     def gMove(self):
         '''
@@ -383,7 +392,6 @@ class TILTMOTORGUI(QWidget) :
         if self.unitChangeVert == 0:
             self.unitChangeVert = 1 #if / 0
         
-       
         self.jogStep.setSuffix(" %s" % self.unitNameTrans)
         self.jogStep.setValue(valueJog*self.unitChangeLat)
         
@@ -394,6 +402,7 @@ class TILTMOTORGUI(QWidget) :
         for zzi in range(0,2):
             self.MOT[zzi].stopMotor();
 
+    @pyqtSlot(object)
     def PositionLat(self,Posi):
         ''' 
         affichage de la position a l aide du second thread
@@ -423,7 +432,8 @@ class TILTMOTORGUI(QWidget) :
             self.position_Lat.setStyleSheet('font: bold 8pt;color:red')
         else :
             self.position_Lat.setText(str(round(a,2)))  
-       
+
+    @pyqtSlot(object) 
     def PositionVert(self,Posi): 
         ''' 
         affichage de la position a l aide du second thread
@@ -452,7 +462,15 @@ class TILTMOTORGUI(QWidget) :
             self.position_Vert.setStyleSheet('font: bold 8pt;color:red')
         else :
             self.position_Vert.setText(str(round(a,2))) 
-      
+        
+    def closeEvent(self, event):
+        """ 
+        When closing the window
+        """
+        self.fini()
+        time.sleep(0.1)
+        event.accept()  
+
     def fini(self): 
         '''
         a la fermeture de la fenetre on arrete le thread secondaire

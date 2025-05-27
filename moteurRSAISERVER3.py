@@ -3,7 +3,7 @@
 """
 Created on 10octobre 2024
 @author: Julien Gautier (LOA)
-last modified 18 oct 2024
+last modified 27/05/25
 
 Dialog to RSAI motors rack via firebird database
 
@@ -29,31 +29,35 @@ serverPort =int(confServer.value('MAIN'+'/serverPort'))
 clientSocket =_socket.socket(_socket.AF_INET,_socket.SOCK_STREAM)
 #clientSocket.settimeout(5)
 
-try :
-    clientSocket.connect((server_host,serverPort))
-    isconnected = True
-    msg = 'clientid'
-    clientSocket.sendall(msg.encode())
-    id = clientSocket.recv(1024).decode()
-    print('connected with id' ,id)
+# try :
+#     clientSocket.connect((server_host,serverPort))
+#     isconnected = True
+#     msg = 'clientid'
+#     clientSocket.sendall(msg.encode())
+#     id = clientSocket.recv(1024).decode()
+#     print('connected with id' ,id)
     
 
-except :
-    isconnected = False
-    print('client not connected')
+# except :
+#     isconnected = False
+#     print('client not connected')
 
 def listRack():
+    clientSocket.connect((server_host,serverPort))
     cmdsend = " %s" %('listRack',)
     clientSocket.sendall((cmdsend).encode())
     listRack = clientSocket.recv(1024).decode()
     listRack = ast.literal_eval(listRack)
+    clientSocket.close()
     return listRack
 
 def nameEquipment(IP):
+    clientSocket.connect((server_host,serverPort))
     cmd = 'nomRack'
     cmdsend = " %s, %s, %s " %(IP,1,cmd)
     clientSocket.sendall((cmdsend).encode())
     nameRack = clientSocket.recv(1024).decode().split()[0]
+    clientSocket.close()
     return nameRack
     
 
@@ -64,6 +68,7 @@ def closeConnection():
     clientSocket.close()
 
 def listMotorName(IP):
+    clientSocket.connect((server_host,serverPort))
     listMotor = []
     print(IP)
     for i in range(0,14):
@@ -72,6 +77,7 @@ def listMotorName(IP):
             clientSocket.sendall((cmdsend).encode())
             name = clientSocket.recv(1024).decode() #.split()[0]
             listMotor.append(name)
+    clientSocket.close()
     return listMotor
 
 class MOTORRSAI():
@@ -154,6 +160,7 @@ class MOTORRSAI():
         self.mut.unlock() 
             
         return retour
+
     @pyqtSlot(object)
     def position(self):
         '''

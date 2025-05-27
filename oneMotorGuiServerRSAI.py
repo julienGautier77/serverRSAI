@@ -4,36 +4,36 @@
 Created on 10 December 2023
 
 @author: Julien Gautier (LOA)
-#last modified 18 oct 2024
+#last modified 27/05/25
 """
 
 from PyQt6 import QtCore
+from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QApplication
 from PyQt6.QtWidgets import QWidget, QMessageBox, QLineEdit, QToolButton,QInputDialog
 from PyQt6.QtWidgets import QVBoxLayout, QHBoxLayout, QPushButton, QGridLayout, QDoubleSpinBox, QCheckBox
 from PyQt6.QtWidgets import QComboBox, QLabel
 from PyQt6.QtGui import QIcon
-from PyQt6.QtCore import QRect
-import moteurRSAISERVER3
+from PyQt6.QtCore import pyqtSlot
 import sys
 import time
 import os
 import qdarkstyle
 import pathlib
-from PyQt6.QtCore import Qt
+
 import __init__     
+import moteurRSAISERVER3
 from scanMotor import SCAN
 
-#import TirGui
 __version__=__init__.__version__
-
+__author__ = __init__. __author__ 
 
 class ONEMOTORGUI(QWidget) :
     """
     User interface Motor class : 
     ONEMOTOGUI(IpAddress, NoMotor,nomWin,showRef,unit,jogValue )
     IpAddress : Ip adress of the RSAI RACK
-    NoMoro : Axis number
+    NoMotor : Axis number
     optional :
         nomWin Name of the windows
         ShowRef = True see the reference windows
@@ -115,16 +115,14 @@ class ONEMOTORGUI(QWidget) :
             self.unitChange = 1 *self.stepmotor[0]
             self.unitName = '°'  
 
-        self.thread = PositionThread(self,mot=self.MOT[0]) # thread for displaying position
+        self.thread = PositionThread(self,mot=self.MOT[0]) # thread for displaying position should be started by startThread2
         self.thread.POS.connect(self.Position)
-        #self.thread.ETAT.connect(self.Etat)
-        
+
         self.setup()
         self.updateFromRSAI()
         self.unit()
         self.jogStep.setValue(self.jogValue)
         self.actionButton()
-        
         
     def updateFromRSAI(self):
         # update from the server RSAI python 
@@ -144,7 +142,6 @@ class ONEMOTORGUI(QWidget) :
         
         self.refValueStep=[] # en step 
         for ref in self.refValue:
-
             self.refValueStep.append(ref /self.stepmotor[0]  )
 
         self.refValueStepOld = self.refValueStep.copy()
@@ -206,7 +203,7 @@ class ONEMOTORGUI(QWidget) :
         hbox0 = QHBoxLayout()
         self.position = QLabel('1234567')
         self.position.setMaximumWidth(300)
-        self.position.setStyleSheet("font: bold 30pt" )
+        self.position.setStyleSheet("font: bold 25pt" )
         
         self.unitBouton = QComboBox()
         self.unitBouton.addItem('Step')
@@ -336,12 +333,15 @@ class ONEMOTORGUI(QWidget) :
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
 
     def focusInEvent(self,event):
+        # change refresh time when window in focus or not ne fonctionne pas 
         super().focusInEvent(event)
         self.thread.positionSleep = 0.05
+        #print('in focus')
 
     def focusOutEvent(self,event):
         super().focusOutEvent(event)
-        self.thread.positionSleep = 1   
+        self.thread.positionSleep = 1  
+        #print('out focus') 
 
     def actionButton(self):
         '''
@@ -377,8 +377,6 @@ class ONEMOTORGUI(QWidget) :
         for takeButton in self.Take:
             takeButton.clicked.connect(self.take) # take the value 
         
-        
-
     def open_widget(self,fene):
         
         """ open new widget 
@@ -519,6 +517,7 @@ class ONEMOTORGUI(QWidget) :
         for zzi in range(0,1):
             self.MOT[zzi].stopMotor()
 
+    @pyqtSlot(object)
     def Position(self,Posi):
         ''' 
         Position  display read from the second thread
@@ -531,7 +530,7 @@ class ONEMOTORGUI(QWidget) :
         a = a * self.unitChange # value with unit changed
         
         self.position.setText(str(round(a,2))) 
-        self.position.setStyleSheet('font: bold 50pt;color:green')
+        self.position.setStyleSheet('font: bold 30pt;color:green')
         if self.etat != self.etat_old:
             self.etat_old = self.etat 
             if self.etat == 'FDC-':
@@ -631,8 +630,8 @@ class ONEMOTORGUI(QWidget) :
         #print('ii',self.refValueStep)
         #print(self.refValueStepOld)
     
-    
     def preset(self):
+        # set motor position
         val , ok = QInputDialog.getDouble(self, 'Set Potion value','Position value to set(%s) ' %self.unitName )
         if ok:
             print(val)
@@ -660,9 +659,11 @@ class ONEMOTORGUI(QWidget) :
             print('close moto widget')
         time.sleep(0.05)
         self.MOT[0].closeConnexion()
+        
 
 class REF1M(QWidget):
-    
+    '''Ref widget class
+    '''
     def __init__(self,num=0, parent=None):
         super(REF1M, self).__init__()
         self.setStyleSheet(qdarkstyle.load_stylesheet(qt_api='pyqt6'))
@@ -736,7 +737,7 @@ class REF1M(QWidget):
 
 class PositionThread(QtCore.QThread):
     '''
-    Second thread  to display the position
+    Second thread  to display the position and state
     '''
     import time 
     POS = QtCore.pyqtSignal(object) # signal of the second thread to main thread  to display motors position
@@ -756,12 +757,10 @@ class PositionThread(QtCore.QThread):
             if self.stop is True:
                 break
             else:
-                
                 Posi = (self.MOT.position())
                 time.sleep(self.positionSleep)
                 etat = self.MOT.etatMotor()
                 try :
-                    # print(etat)
                     #time.sleep(0.1)
                     if self.Posi_old != Posi or self.etat_old != etat: # on emet que si different
                         self.POS.emit([Posi,etat])

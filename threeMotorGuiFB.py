@@ -4,13 +4,14 @@
 Created on 15 December 2023
 
 @author: Julien Gautier (LOA)
-last modified 
+last modified 27/05/25
 """
 from PyQt6 import QtCore
 from PyQt6.QtWidgets import QWidget,QMessageBox,QLineEdit,QToolButton
 from PyQt6.QtWidgets import QApplication,QVBoxLayout,QHBoxLayout,QPushButton,QGridLayout,QDoubleSpinBox,QCheckBox
 from PyQt6.QtWidgets import QComboBox,QLabel
 from PyQt6.QtGui import QIcon
+from PyQt6.QtCore import pyqtSlot
 import sys,time,os
 import qdarkstyle
 import pathlib
@@ -47,8 +48,6 @@ class THREEMOTORGUI(QWidget) :
     
     
     """
-
-
 
     def __init__(self, IPLat,NoMotorLat,IPVert,NoMotorVert,IPFoc,NoMotorFoc,nomWin='',nomTilt='',nomFoc='',showRef=False,unit=1,unitFoc=1,jogValue=100,jogValueFoc=100,parent=None):
         
@@ -97,6 +96,9 @@ class THREEMOTORGUI(QWidget) :
         self.iconFlecheGauche = pathlib.Path(self.iconFlecheGauche)
         self.iconFlecheGauche = pathlib.PurePosixPath(self.iconFlecheGauche)
 
+        self.setWindowIcon(QIcon(self.icon+'LOA.png'))
+        self.setStyleSheet(qdarkstyle.load_stylesheet(qt_api='pyqt6'))
+        self.version = __version__
 
         self.nomTilt = nomTilt
         self.etatLat = 'ok'
@@ -104,24 +106,24 @@ class THREEMOTORGUI(QWidget) :
         self.etatFoc = 'ok'
         self.configPath = str(p.parent)+sepa+"fichiersConfig"+sepa
         self.isWinOpen = False
-        self.setStyleSheet(qdarkstyle.load_stylesheet(qt_api='pyqt6'))
+       
         self.refShowId = showRef
         self.indexUnit = unit
         self.indexUnitFoc = unitFoc
         self.jogValue = jogValue
         self.jogValueFoc = jogValueFoc
 
+        self.tir = TirGui.TIRGUI()
+
         self.LatWidget = ONEMOTORGUI(IPLat,NoMotorLat,nomWin='Control One Motor : ',showRef=False,unit=1)
         self.VertWidget = ONEMOTORGUI(IPVert,NoMotorVert,nomWin='Control One Motor : ',showRef=False,unit=1)
         self.FocWidget = ONEMOTORGUI(IPFoc,NoMotorFoc,nomWin='Control One Motor : ',showRef=False,unit=1)
-        self.setWindowIcon(QIcon(self.icon+'LOA.png'))
-        self.version = __version__
-        self.tir = TirGui.TIRGUI()
-        # self.setWindowOpacity(0.5)
+        
+        #self.setWindowOpacity(0.95)
         self.MOT = [0,0,0]
-        self.MOT[0] = moteurRSAISERVER3.MOTORRSAI(IPLat,NoMotorLat)
-        self.MOT[1] = moteurRSAISERVER3.MOTORRSAI(IPVert,NoMotorVert)
-        self.MOT[2] = moteurRSAISERVER3.MOTORRSAI(IPFoc,NoMotorFoc)
+        self.MOT[0] = self.LatWidget.MOT[0] #  moteurRSAISERVER3.MOTORRSAI(IPLat,NoMotorLat)
+        self.MOT[1] = self.VertWidget.MOT[0] #  moteurRSAISERVER3.MOTORRSAI(IPVert,NoMotorVert)
+        self.MOT[2] = self.FocWidget.MOT[0] #  moteurRSAISERVER3.MOTORRSAI(IPFoc,NoMotorFoc)
 
         self.stepmotor = [0,0,0]
         self.butePos = [0,0,0]
@@ -536,6 +538,15 @@ class THREEMOTORGUI(QWidget) :
         self.jogStep_2.setFocus()
         self.refShow()
 
+    def focusInEvent(self,event):
+        # change refresh time when window in focus or not 
+        super().focusInEvent(event)
+        self.thread.positionSleep = 0.05
+
+    def focusOutEvent(self,event):
+        super().focusOutEvent(event)
+        self.thread.positionSleep = 1 
+
     def actionButton(self):
         '''
            buttons action setup 
@@ -833,7 +844,8 @@ class THREEMOTORGUI(QWidget) :
     def EtatFoc(self,etat):
 #        print(etat)
         self.etatFoc = etat    
-        
+    
+    @pyqtSlot(object)    
     def PositionLat(self,Posi):
         ''' 
         Position Lat  display with the second thread
@@ -881,7 +893,8 @@ class THREEMOTORGUI(QWidget) :
 
         if positionConnue_Lat == 0 and (self.etatLat == 'ok' or self.etatLat == '?'):
             self.enPosition_Lat.setText('' ) 
-            
+    
+    @pyqtSlot(object)        
     def PositionVert(self,Posi): 
         ''' 
         Position Vert  displayed with the second thread
@@ -925,7 +938,8 @@ class THREEMOTORGUI(QWidget) :
                         positionConnue_Vert = 1     
         if positionConnue_Vert == 0 and (self.etatVert == 'ok' or self.etatVert == '?'):
             self.enPosition_Vert.setText(' ' )   
-            
+
+    @pyqtSlot(object)        
     def PositionFoc(self,Posi): 
         ''' 
         Position Foc  displayed with the second thread
@@ -1099,13 +1113,15 @@ class REF3M(QWidget):
     def __init__(self,num=0, parent=None):
         QtCore.QObject.__init__(self)
         super(REF3M, self).__init__()
-        self.setStyleSheet(qdarkstyle.load_stylesheet(qt_api='pyqt6'))
-        self.wid=  QWidget()
-        self.id = num
-        self.vboxPos = QVBoxLayout()
         p = pathlib.Path(__file__)
         sepa = os.sep
         self.icon = str(p.parent) + sepa + 'icons' +sepa
+        self.id = num
+        
+        self.setStyleSheet(qdarkstyle.load_stylesheet(qt_api='pyqt6'))
+        
+        self.wid=  QWidget()
+        self.vboxPos = QVBoxLayout()
         self.posText = QLineEdit('ref')
         self.posText.setStyleSheet("font: bold 15pt")
         self.posText.setAlignment(QtCore.Qt.AlignmentFlag.AlignHCenter | QtCore.Qt.AlignmentFlag.AlignVCenter)
@@ -1167,10 +1183,10 @@ class REF3M(QWidget):
         grid_layoutPos.addWidget(LabelFocref,3,0)
         grid_layoutPos.addWidget(self.ABSFocref,3,1)
         self.vboxPos.addLayout(grid_layoutPos)
-#        self.vboxPos.setContentsMargins(-10,-10,-10,-10)
+
         self.wid.setStyleSheet("background-color: rgb(60, 77, 87)")
         self.wid.setLayout(self.vboxPos)
-#        self.setContentsMargins(-10,-10,-10,-10)
+
         mainVert = QVBoxLayout()
         mainVert.addWidget(self.wid)
         mainVert.setContentsMargins(0,0,0,0)
@@ -1192,6 +1208,7 @@ class PositionThread(QtCore.QThread):
         self.stop = False
         self.etat_old = ""
         self.Posi_old = 0
+        self.positionSleep = 0.05
 
     def run(self):
         while True:
@@ -1199,16 +1216,14 @@ class PositionThread(QtCore.QThread):
                 break
             else:
                 Posi = (self.MOT.position())
-                time.sleep(0.05)
+                time.sleep(self.positionSleep )
                 #try :
+                time.sleep(0.01)
                 etat = self.MOT.etatMotor()
                 #time.sleep(0.1)
                 if self.Posi_old != Posi or self.etat_old != etat: # on emet que si different
                     self.POS.emit([Posi,etat])
-                #time.sleep(0.1)
-                #except: 
-                    #print('error emit etat')  
-                    
+
     def ThreadINIT(self):
         self.stop = False   
                         
