@@ -20,7 +20,7 @@ import time
 import os
 import qdarkstyle
 import pathlib
-
+import tirSalleJaune as tirSJ
 import __init__     
 import moteurRSAISERVER3
 from scanMotor import SCAN
@@ -48,6 +48,8 @@ class ONEMOTORGUI(QWidget) :
         
         p = pathlib.Path(__file__)
         sepa = os.sep
+        self.parent= parent 
+        
         self.icon = str(p.parent) + sepa + 'icons' +sepa
         self.isWinOpen = False
         self.nomWin = nomWin
@@ -385,7 +387,7 @@ class ONEMOTORGUI(QWidget) :
             #New widget"
             fene.show()
             fene.isWinOpen=True
-            fene.startTrigThread()
+            #fene.startTrigThread()
         else:
             #fene.activateWindow()
             fene.raise_()
@@ -781,7 +783,7 @@ class PositionThread(QtCore.QThread):
 
 if __name__ == '__main__':
     appli = QApplication(sys.argv)
-    mot1 = ONEMOTORGUI(IpAdress="10.0.3.31", NoMotor = 2, showRef=False, unit=1,jogValue=100)
+    mot1 = ONEMOTORGUI(IpAdress="10.0.1.31", NoMotor =14, showRef=False, unit=1,jogValue=100)
     mot1.show()
     mot1.startThread2()
     # mot2= ONEMOTORGUI(IpAdress="10.0.2.30", NoMotor = 2, showRef=False, unit=1,jogValue=100)

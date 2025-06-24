@@ -85,7 +85,8 @@ def Tir():
     except:
         print('issue with Tir')
         return None
-    
+
+ 
 def stopTir():
     recu = passCommand(b"Stop")
 
@@ -264,6 +265,7 @@ class multiTirThread(QtCore.QThread):
         self.stop = True
         time.sleep(0.1)
         #self.terminate()
+
 
 class TESTCONNECTION(QtCore.QThread):
     '''

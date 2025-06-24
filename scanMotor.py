@@ -51,9 +51,7 @@ class SCAN(QWidget):
         self.threadScan.nbRemain.connect(self.Remain)
         self.threadScan.info.connect(self.infoWrite)
         self.setWindowIcon(QIcon('./icons/LOA.png'))
-        self.threadShoot = ThreadShoot(self)
-        self.threadShoot.nbRemainShoot.connect(self.RemainShoot)
-
+        
     def startTrigThread(self):
         self.threadScan.trigClient.start()
 
@@ -168,7 +166,6 @@ class SCAN(QWidget):
     def startShoot(self):
 
         self.stepChange()
-        self.threadShoot.start()
         self.lab_nbr_step.setEnabled(False)
         self.val_nbr_step.setEnabled(False)
         self.lab_step.setEnabled(False)
@@ -185,8 +182,9 @@ class SCAN(QWidget):
         self.but_Shoot.setEnabled(False)
         self.but_stop.setEnabled(True)
         self.but_stop.setStyleSheet("border-radius:20px;background-color: red")
+
+        print('ivi tir')
         a = tirSJ.Tir()
-        print(a)
         
         if a == 0 or a == "":
             msg = QMessageBox()
@@ -196,12 +194,12 @@ class SCAN(QWidget):
             msg.setWindowTitle("Warning ...")
             msg.setWindowFlags(QtCore.Qt.WindowType.WindowStaysOnTopHint)
             msg.exec()
-       
+
+        self.stopScan() 
+
     def stopScan(self):
         
         self.threadScan.stopThread()
-        self.threadShoot.stopThread()
-        
         self.MOT.stopMotor()
         self.lab_nbr_step.setEnabled(True)
         self.val_nbr_step.setEnabled(True)
@@ -219,7 +217,8 @@ class SCAN(QWidget):
         self.but_Shoot.setEnabled(True)
         self.but_stop.setEnabled(False)
         self.but_stop.setStyleSheet("border-radius:20px;background-color: red")
-        a = tirSJ.stopTir()
+        if self.threadScan.multi == True : 
+            a = tirSJ.stopTir()
 
     def Remain(self,nbstepdone,nbMax):
         self.val_nbStepRemain.setText(str((nbstepdone)))
@@ -260,6 +259,7 @@ class SCAN(QWidget):
        self.val_nbShoot = self.val_nbTir.value()
     
     def startScan(self):
+        print('click')
         self.stepChange()
         self.threadScan.start()
         self.lab_nbr_step.setEnabled(False)
@@ -318,6 +318,7 @@ class SCAN(QWidget):
         #print('close scan widget')
         event.accept() 
     
+
 class ThreadShoot(QtCore.QThread):
 
     nbRemainShoot = QtCore.pyqtSignal(float)
@@ -327,7 +328,6 @@ class ThreadShoot(QtCore.QThread):
         self.parent = parent
         self.stop = False
         
-
     def run(self):
         self.stop = False
         nb = 0
@@ -357,46 +357,35 @@ class ThreadScan(QtCore.QThread):
         date = time.strftime("%Y_%m_%d_%H_%M_%S")
         
         self.trigClient = THREADCLIENTTRIG(parent = self)
-        self.trigClient.newShotnumber.connect(self.multiscan)
+        self.trigClient.newShotnumber.connect(self.newTrigReceived)
         self.trigClient.emitConnected = False
         # self.trigClient.start()
         self.trigNumber = 0
         self.mvt = 0 
         self.nbshooted = 0 # nombre de tir effectuée
-    
-    def multiscan(self, nbshoot):
+        self.multi = False
+
+    def newTrigReceived(self, nbshoot=0):
         print('new trig')
+        time.sleep(0.12) # le trig a eu lieu 
         self.nbshoot = nbshoot
-        self.trigNumber = self.trigNumber + 1 # nombre de tir sans bouger 
         self.nbshooted = self.nbshooted + 1  # nombre total de tir 
-        print('nombre de tir a effectues',self.nbTotShot,self.nbshooted)
-
-        if int(self.nbshooted) >= int(self.nbTotShot) :
-            self.trigClient.emitConnected = False
-            print('scan multishoot finished')
-            self.info.emit('Sequence ended at %s, duration: %.1f min' % (time.ctime(), (time.time()-self.t1)/60 ))
-
-        elif self.trigNumber < (self.val_nbTir):
-            print('on a tiré le nombre de fois sans bouger',self.trigNumber )
-            self.info.emit("Trig shoot without moving   %s" % str(self.trigNumber))
-
-        elif self.trigNumber == (self.val_nbTir):
-            print('on a tiré le nombre de fois sans bouger',self.trigNumber )
-            print('on bouge le moteur',self.movement[self.mvt])
-            self.info.emit("shoot without moving   %s" % str(self.trigNumber))
-            self.info.emit("motor move to   %s" % str(round(self.movement[self.mvt]*self.parent.unitChange,2)) )
-            self.parent.MOT.move(self.movement[self.mvt])
-            self.mvt = self.mvt +1 
-            self.trigNumber = 0
+    
+    def IsNbShooted(self):
+        return self.nbshooted
         
-        self.nbRemain.emit(int(self.nbTotShot- self.nbshooted),int(self.nbTotShot))
         
     def run(self):
 
-        self.nbshooted = 0
+        print('start scan')
+        self.precis = 1
+        self.trigNumber = 0 # nb trig sans bouger 
+        self.mvt = 0 # index de la position a faire 
+        self.nbshooted = 0 # nombre de tir effectuée
+        self.multi = False
         self.stop = False
         self.info.emit('Start sequence (at %s)' % time.ctime())
-
+        self.mvt = 0 # index mouvement
         self.vini = self.parent.vInit/self.parent.unitChange
         self.vfin = self.parent.vFin/self.parent.unitChange
         self.step = self.parent.vStep/self.parent.unitChange
@@ -418,18 +407,21 @@ class ThreadScan(QtCore.QThread):
         else:
             self.val_time = 1/self.val_time
             self.multi = False
-
+        
         self.parent.MOT.move(self.vini)
+
         self.t1 = time.time()
+        
         b = self.parent.MOT.position()
-        while b!= self.vini:
+        self.precis = 1
+        while abs (self.vini - b) > self.precis :
             if self.stop is True:
                 break
             else:	
-                time.sleep(0.1)
+                time.sleep(0.05)
                 b = self.parent.MOT.position()
 
-        time.sleep(0.1)
+        time.sleep(0.05)
 
         self.info.emit("first position reached %s" % round(b*self.parent.unitChange,2))
         self.movement = np.arange(self.vini+self.step,self.vfin+self.step,self.step)
@@ -443,7 +435,8 @@ class ThreadScan(QtCore.QThread):
                 self.trigClient.emitConnected = True
                 tirSJ.multi_shot(self.freq,self.nbTotShot)
                 print('multi tir envoye')
-                 
+
+
         else : # premier tir a la position ini pas compris dans self.movement 
             for nu in range (0,int(self.val_nbTir)):
                             nb+=1
@@ -457,38 +450,49 @@ class ThreadScan(QtCore.QThread):
                                 self.info.emit('wait '+ str(self.val_time)+ "s")
                                 time.sleep(self.val_time)
 
-            for mv in self.movement:
-                
-                if self.stop is True:
-                    break
-                else:
-                    mv = int(mv)
-                    self.parent.MOT.move(mv)
-                    b = self.parent.MOT.position()
-                    b = int(b)
-                    while True:
-                        if self.stop is True:
-                            break
-                        else :
-                            b = self.parent.MOT.position()
-                            time.sleep(0.1)
-                            precis = 1
-                            if b == mv :
-                                print( "position reached", str(b))
-                                self.info.emit("position reached  %s" % round(b*self.parent.unitChange,2)) 
-                                break
-                        
-                        for nu in range (0,int(self.val_nbTir)):
-                            nb+=1
-                            self.info.emit('shot')
-                            a = tirSJ.Tir()
-                            print('shot' )
-                            if a == 0 or a == "":
-                                print('error shot')
-                                self.nbRemain.emit(int(self.nbTotShot-nb),int(self.nbTotShot))
-                                print('wait',self.val_time)
-                                self.info.emit('wait '+ str(self.val_time)+ "s")
-                                time.sleep(self.val_time)
+        self.trigClient.connectTrig()
+        time.sleep(0.1)
+        self.trigClient.start()  #  on start le thread qui compte les tirs à chaque nouveau trig recu la fonction NewTrigreceive est effectuée  
+        print('nombre de tir a effectues',self.nbTotShot,self.nbshooted,self.trigNumber)
+        self.etat = 'start'
+        self.trigWithoutMove = 0
+        while self.etat == "fini" : 
+            self.nbshooted = self.IsNbShooted()
+            print('nb tir effectué boucle while ',self.nbshooted)
+            if int(self.nbshooted) >= int(self.nbTotShot) :
+                self.trigClient.emitConnected = False
+                print('scan finished')
+                self.info.emit('Sequence ended at %s, duration: %.1f min' % (time.ctime(), (time.time()-self.t1)/60 ))
+                self.trigClient.stopClientThread()
+                self.etat = "fini"
+            elif self.trigWithoutMove < (self.val_nbTir):
+                print('on a pas encore  tiré le nombre de fois sans bouger',self.trigWithoutMove )
+                self.info.emit("Trig shoot without moving   %s" % str(self.trigWithoutMove))
+                self.trigWithoutMove += 1
+                self.etat = "pasbougé"
+                tirSJ.Tir()
+            elif self.trigWithoutMove == (self.val_nbTir):
+                print('on a tiré le nombre de fois sans bouger',self.trigWithoutMove)
+                print('on bouge le moteur',self.movement[self.mvt])
+                self.info.emit("shoot without moving   %s" % str(self.trigWithoutMove))
+                self.info.emit("motor move to   %s" % str(round(self.movement[self.mvt]*self.parent.unitChange,2)) )
+                self.parent.MOT.move(self.movement[self.mvt])
+                b = self.parent.MOT.position()
+                while abs (self.vini - b) > self.precis :
+                    if self.stop is True:
+                        break
+                    else:	
+                        time.sleep(0.05)
+                        b = self.parent.MOT.position()
+                print('position reached')
+                a = tirSJ.Tir()
+
+                self.mvt = self.mvt +1 
+                self.trigWithoutMove = 0
+                self.etat = "bouge"
+        self.nbRemain.emit(int(self.nbTotShot- self.nbshooted),int(self.nbTotShot))
+
+            
 
         if self.multi is False :
             self.info.emit('Sequence ended at %s, duration: %.1f min' % (time.ctime(), (time.time()-self.t1)/60 ))
@@ -497,6 +501,8 @@ class ThreadScan(QtCore.QThread):
     def stopThread(self):
         self.stop = True
         self.trigClient.emitConnected = False
+        self.trigClient.disconnectTrig()
+        self.trigClient.stopClientThread()
         print( "stop thread" )  
 
 class THREADCLIENTTRIG(QtCore.QThread):
@@ -509,21 +515,23 @@ class THREADCLIENTTRIG(QtCore.QThread):
         super(THREADCLIENTTRIG, self).__init__(parent)
         self.nbshoot = 0
         self.parent = parent 
+        self.ClientIsConnected = False
         
-        self.emitConnected = False
 
-    def run(self):
-
-        print('run trigger server client')
+    def connectTrig(self):
         self.clientSocket = _socket.socket(_socket.AF_INET, _socket.SOCK_STREAM)
         self.serverHost = '10.0.1.57'
         self.serverPort = 5009
         self.clientSocket.connect((self.serverHost, self.serverPort))
-            
         self.ClientIsConnected = True
         print('client connected to server', self.serverHost)
-        
-            
+
+    def disconnectTrig(self):
+        self.ClientIsConnected = False
+        self.clientSocket.close()
+
+    def run(self):
+        print('server trig qui recoit')
         while self.ClientIsConnected is True:
             cmd = 'numberShoot?'
             self.clientSocket.send(cmd.encode())
@@ -546,11 +554,11 @@ class THREADCLIENTTRIG(QtCore.QThread):
     def stopClientThread(self):
         print('close connection to trig')
         self.ClientIsConnected = False
-        self.clientSocket.close()
+        self.disconnectTrig()
 
 
 if __name__=='__main__':
     appli = QApplication(sys.argv)
-    s = THREADCLIENTTRIG()
-    s.start()
+    # s = THREADCLIENTTRIG()
+    # s.start()
     appli.exec()

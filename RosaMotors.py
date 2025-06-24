@@ -222,7 +222,7 @@ class MAINMOTOR(QWidget):
         grid_layout.addWidget(self.compton_But,3,1)
 
         ## Focal Spot 
-        self.motFS = ONEMOTORGUI(IpAdress="10.0.1.31", NoMotor = 5, showRef=False, unit=1,jogValue=100)
+        self.motFS = ONEMOTORGUI(IpAdress="10.0.1.31", NoMotor = 5, showRef=False, unit=1,jogValue=100,parent=self)
         self.thread = PositionThread(self,mot=self.motFS.MOT[0]) # thread for displaying position
         self.thread.POS.connect(self.Position)
         self.thread.ThreadINIT()

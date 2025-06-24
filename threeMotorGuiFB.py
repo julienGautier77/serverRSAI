@@ -58,6 +58,7 @@ class THREEMOTORGUI(QWidget) :
         self.etatFoc_old ='ok'
         self.etatVert_old ='ok'
         self.etatLat_old ='ok'
+        
         self.icon = str(p.parent) + sepa + 'icons' +sepa
         self.nomWin = nomWin
         self.iconPlay = self.icon+"playGreen.png"
