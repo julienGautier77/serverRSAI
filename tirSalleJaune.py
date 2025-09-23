@@ -101,6 +101,7 @@ def multi_shot(nb_freq,nb_tir):
     try:
         _sockobj.send(b"Shot %i,%i" % (nb_freq,nb_tir))
         isConnected = True
+        print('tir salle program',nb_freq,nb_tir)
     except:
         print('issue with multi_shot passCommand')
         return None
