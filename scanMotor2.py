@@ -54,8 +54,8 @@ class SCAN(QWidget):
         self.threadShoot = ThreadShoot(self)
         self.threadShoot.nbRemainShoot.connect(self.RemainShoot)
 
-    def startTrigThread(self):
-        self.threadScan.trigClient.start()
+    # def startTrigThread(self):
+    #     self.threadScan.trigClient.start()
 
     def setup(self):
         
@@ -348,7 +348,7 @@ class ThreadShoot(QtCore.QThread):
 class ThreadScan(QtCore.QThread):
    
     nbRemain = QtCore.pyqtSignal(int,int)
-    info = QtCore.pyqtSignal(str)
+    info = QtCore.pyqtSignal(str) # to send info to main widget 
 
     def __init__(self, parent=None):
         super(ThreadScan,self).__init__(parent)
@@ -399,7 +399,7 @@ class ThreadScan(QtCore.QThread):
                                 self.info.emit("position reached  %s" % round(b*self.parent.unitChange,2)) 
                                 break
             print('multishot ici',self.freq,self.val_nbTir)
-            time.sleep(8)
+            time.sleep(8) # cat labview 
             tirSJ.multi_shot(self.freq,self.val_nbTir)
             print('tir envoye multi')
             msg = 'multi shot %s @ %s' % (str(self.freq), str(self.val_nbTir))
@@ -410,6 +410,7 @@ class ThreadScan(QtCore.QThread):
         self.nbRemain.emit(int(self.nbTotShot- self.nbshooted),int(self.nbTotShot))
         
     def run(self):
+
         print('run sequence')
         self.nbshooted = 0
         self.stop = False
@@ -456,6 +457,7 @@ class ThreadScan(QtCore.QThread):
         self.nbTotShot = int( (np.size(self.movement) +1 ) * self.val_nbTir)
         self.nbRemain.emit(int(self.nbTotShot),int(self.nbTotShot))
         nb = 0
+
         if self.multi is True : 
                 
                 print('multishoot @%s' % str(self.freq))
@@ -530,19 +532,18 @@ class THREADCLIENTTRIG(QtCore.QThread):
         super(THREADCLIENTTRIG, self).__init__(parent)
         self.nbshoot = 0
         self.parent = parent 
-        
         self.emitConnected = False
         print('run trigger server client')
         self.clientSocket = _socket.socket(_socket.AF_INET, _socket.SOCK_STREAM)
         self.serverHost = '10.0.1.57'
         self.serverPort = 5009
         self.clientSocket.connect((self.serverHost, self.serverPort))
-            
         self.ClientIsConnected = True
         print('client connected to server', self.serverHost)
         
 
     def run(self):
+        #  quand on lance le scan on regarde le nombre de tir trigger
         cmd = 'numberShoot?'
         self.clientSocket.send(cmd.encode())
             # print('connected...')
