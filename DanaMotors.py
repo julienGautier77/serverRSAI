@@ -157,7 +157,7 @@ class MAINMOTOR(QWidget):
         self.cible_But = QPushButton('JET')
         self.cible_But.clicked.connect(lambda:self.open_widget(self.cible))
 
-        self.camWidget = THREEMOTORGUI(IPVert='10.0.6.31', NoMotorVert = 13 , IPLat='10.0.6.31', NoMotorLat = 11,IPFoc='10.0.6.31', NoMotorFoc= 12,nomWin='Focal Spot DANA',nomTilt='CAM FS',nomFoc='')
+        self.camWidget = THREEMOTORGUI(IPVert='10.0.6.30', NoMotorVert = 2 , IPLat='10.0.6.31', NoMotorLat = 11,IPFoc='10.0.6.31', NoMotorFoc= 12,nomWin='Focal Spot DANA',nomTilt='CAM FS',nomFoc='')
         self.cam_But = QPushButton('CAM')
         self.cam_But.clicked.connect(lambda:self.open_widget(self.camWidget))
 
