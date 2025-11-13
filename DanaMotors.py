@@ -174,15 +174,16 @@ class MAINMOTOR(QWidget):
         self.P3TB_But = QPushButton('P3 TB')
         self.P3TB_But.clicked.connect(lambda:self.open_widget(self.P3TB))
 
-        self.P1M = TILTMOTORGUI('10.0.6.31',5,'10.0.1.31',6,nomWin='P1 mirror  ',nomTilt='P1 M')
+        self.P1M = TILTMOTORGUI( IPLat="10.0.6.31", NoMotorLat=6,IPVert="10.0.6.31", NoMotorVert=5,nomWin='Tilt Turning Haut',background='')
         self.P1Mir_But = QPushButton('P1 Mir')
         self.P1Mir_But.clicked.connect(lambda:self.open_widget(self.P1M))
         
         self.P2Mir_But = QPushButton('P2 Mir')
         self.P2Mir_But.setEnabled(False)
+
         self.P3M = TILTMOTORGUI('10.0.6.31',7,'10.0.1.31',8,nomWin='P3 mirror  ',nomTilt='P1 M')
         self.P3Mir_But = QPushButton('P3 Mir')
-        self.P1Mir_But.clicked.connect(lambda:self.open_widget(self.P3M))
+        self.P3Mir_But.clicked.connect(lambda:self.open_widget(self.P3M))
 
         self.P1OPA = TILTMOTORGUI('10.0.1.31',9,'10.0.1.31',10,nomWin='P1 Spherique  ',nomTilt='P1 Sphe')
         self.P1OAP_But = QPushButton('P1 OAP')

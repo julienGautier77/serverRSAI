@@ -528,7 +528,7 @@ if __name__ =='__main__':
     motor0='tiltLat'
     motor1='tiltVert'
     appli=QApplication(sys.argv)
-    mot5=TILTMOTORGUI( IPLat="10.0.6.31", NoMotorLat=1,IPVert="10.0.6.31", NoMotorVert=2,nomWin='Tilt Turning Haut',background='')
+    mot5=TILTMOTORGUI( IPLat="10.0.6.31", NoMotorLat=5,IPVert="10.0.6.31", NoMotorVert=6,nomWin='Tilt Turning Haut',background='')
     mot5.show()
     mot5.startThread2()
     appli.exec_()
